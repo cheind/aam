@@ -28,18 +28,18 @@ namespace aam {
    
     /** Compute PCA transform for given data set.
      
-        \param data MxN matrix with features in rows
+        \param data MxN matrix with N features in M dimensions in columns
         \param mean Mx1 matrix receiving the data mean
-        \param basis NxK matrix with PCA normalized vectors in columns sorted by ascending eigenvalues.
+        \param basis MxM matrix with PCA normalized vectors in columns sorted by ascending eigenvalues.
      */
-    void computePCA(Eigen::Ref<const MatrixX> data, Eigen::Ref<VectorX> mean, Eigen::Ref<MatrixX> basis, int k)
+    void computePCA(Eigen::Ref<const MatrixX> data, Eigen::Ref<VectorX> mean, Eigen::Ref<MatrixX> basis)
     {
-        mean = data.colwise().mean();
-        MatrixX centered = data.rowwise() - mean.transpose();
-        MatrixX cov = centered.adjoint() * centered;
+        mean = data.rowwise().mean();
+        MatrixX centered = data.colwise() - mean;
+        MatrixX cov = centered * centered.adjoint();
 
         Eigen::SelfAdjointEigenSolver<MatrixX> eig(cov);
-        basis = eig.eigenvectors().rightCols(k);
+        basis = eig.eigenvectors();
     }
 
 }
