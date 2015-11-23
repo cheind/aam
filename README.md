@@ -33,6 +33,7 @@ If the build should fail for a specific platform, don't hesitate to create an is
 # References
 
 [1] Matthews, Iain, and Simon Baker. "Active appearance models revisited." International Journal of Computer Vision 60.2 (2004): 135-164.
+
 [2] Nordstrøm, Michael M., et al. The IMM face database-an annotated dataset of 240 face images. Technical University of Denmark, DTU Informatics, Building 321, 2004.
 
 # License
