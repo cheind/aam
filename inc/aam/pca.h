@@ -31,8 +31,9 @@ namespace aam {
         \param data MxN matrix with N features in M dimensions in columns
         \param mean Mx1 matrix receiving the data mean
         \param basis MxM matrix with PCA normalized vectors in columns sorted by ascending eigenvalues.
+        \param weights Mx1 matrix containing the eigenvalues sorted in ascending order.
      */
-    void computePCA(Eigen::Ref<const MatrixX> data, Eigen::Ref<VectorX> mean, Eigen::Ref<MatrixX> basis)
+    void computePCA(Eigen::Ref<const MatrixX> data, Eigen::Ref<VectorX> mean, Eigen::Ref<MatrixX> basis, Eigen::Ref<VectorX> weights)
     {
         mean = data.rowwise().mean();
         MatrixX centered = data.colwise() - mean;
@@ -40,6 +41,27 @@ namespace aam {
 
         Eigen::SelfAdjointEigenSolver<MatrixX> eig(cov);
         basis = eig.eigenvectors();
+        weights = eig.eigenvalues();
+    }
+    
+    /** Compute the PCA subspace dimensionality for a given tolerated loss.
+     
+        \param weights eigen values sorted in ascending order
+        \param toleratedCompressionLoss allowed compression loss in percent
+        \return Returns the number of dimensions subspace.
+     
+     */
+    inline VectorX::Index computePCADimensionality(Eigen::Ref<const VectorX> weights, MatrixX::Scalar toleratedCompressionLoss) {
+        VectorX::Scalar sum = weights.sum();
+        VectorX::Scalar loss = 0.f;
+        VectorX::Index idx = 0;
+        
+        while (loss <= toleratedCompressionLoss && idx < weights.cols()) {
+            loss += weights(idx) / sum;
+            idx++;
+        }
+        
+        return weights.cols() - idx + 1;
     }
 
 }

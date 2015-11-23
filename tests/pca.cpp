@@ -43,15 +43,19 @@ TEST_CASE("pca")
     // Compute PCA
     Eigen::Vector3f mean(data.rows());
     Eigen::MatrixXf basis(data.rows(), data.rows());
-    aam::computePCA(data, mean, basis); // Only interested in the most dominant basis direction.
+    Eigen::Vector3f weights(data.rows());
+    aam::computePCA(data, mean, basis, weights);
+    
+    Eigen::Vector3f::Index dims = aam::computePCADimensionality(weights, 0.f);
+    REQUIRE(dims == 1);
     
     // Verify results
     REQUIRE(mean.isApprox(Eigen::Vector3f(2,3,0), 0.1f));
     REQUIRE((basis.col(2) - r.direction()).norm() == Catch::Detail::Approx(0).epsilon(0.1));
 
     // Projection of data onto PCA basis is then a simple matter of matrix mul.
-    Eigen::MatrixXf proj = basis.rightCols(1).transpose() * data;
-    const float corr = (basis.rightCols(1).transpose() * Eigen::Vector3f(2, 3, 0))(0);
+    Eigen::MatrixXf proj = basis.rightCols(dims).transpose() * data;
+    const float corr = (basis.rightCols(dims).transpose() * Eigen::Vector3f(2, 3, 0))(0);
     for (Eigen::VectorXf::Index i = 0; i < ts.rows(); ++i) {
         REQUIRE((proj(0, i) - corr) == Catch::Detail::Approx(ts(i)).epsilon(0.1));
     }
