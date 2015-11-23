@@ -14,7 +14,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${OpenCV_INCLUDE_DIRS} ${EIGEN_I
 
 # Library
 
-add_library(aam 
+add_library(aam
+    inc/aam/types.h
+	inc/aam/pca.h
 	inc/aam/dummy.h
 	src/dummy.cpp	
 )
@@ -28,5 +30,9 @@ target_link_libraries(aam_shapemorph aam ${OpenCV_LIBRARIES})
 
 # Tests
 
-add_executable(tests tests/catch.hpp tests/dummy.cpp)
+add_executable(tests
+    tests/catch.hpp
+    tests/pca.cpp
+    tests/dummy.cpp
+)
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})
