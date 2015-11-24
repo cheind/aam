@@ -31,8 +31,13 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
  */
 int main(int argc, char **argv)
 {
+    if (argc != 2) {
+        std::cout << "Usage: " << argv[0] << " directory" << std::endl;
+        return 0;
+    }
+
     aam::TrainingSet trainingSet;
-    aam::loadAsfTrainingSet("c:/GIT/AAM_data/data", trainingSet);
+    aam::loadAsfTrainingSet(argv[1], trainingSet);
 
     // calculate PCA on shape data (without procrustes analysis for now...)
     cv::Mat mean;
