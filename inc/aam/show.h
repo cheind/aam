@@ -25,12 +25,12 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <opencv2/core/core.hpp>
 
 namespace aam {
-
-// for debugging draw a single shape on some image
-void drawShape(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& contour = cv::Mat(0, 0, CV_64F));
-
-// for debugging: display the complete training set
-void showTrainingSet(const TrainingSet& trainingSet);
+    
+    // for debugging draw a single shape on some image
+    void drawShape(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& contour = cv::Mat());
+    
+    // for debugging: display the complete training set
+    void showTrainingSet(const TrainingSet& trainingSet);
 
 }
 
