@@ -21,18 +21,16 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AAM_SHOW_H
 #define AAM_SHOW_H
 
-#include <aam/fwd.h>
+#include <aam/types.h>
+#include <opencv2/core/core.hpp>
 
 namespace aam {
 
-// for debugging: display a single training data (image + shape)
-bool showTrainingData(const TrainingData& trainingData);
+// for debugging draw a single shape on some image
+void drawShape(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& contour = cv::Mat(0, 0, CV_64F));
 
 // for debugging: display the complete training set
-bool showTrainingSet(const TrainingSet& trainingSet);
-
-// TODO
-//void training(std::vector<TrainingData> data, cv::Mat& eigenVecs, cv::Mat& eigenValues, cv::Mat& mean, double maxPercentVariation, ...);
+void showTrainingSet(const TrainingSet& trainingSet);
 
 }
 

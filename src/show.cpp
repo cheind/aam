@@ -19,51 +19,35 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <aam/types.h>
+#include <aam/show.h>
 #include <opencv/highgui.h>
 
-/*
-void aam::delaunayTriangulation(const cv::Mat& coords, cv::Mat& triangles) {
-    cv::Subdiv2D subd;
-    for (int i = 0; i < coords.rows; i++) {
-        subd.insert(cv::Point2d(coords.at<double>(i, 0), coords.at<double>(i, 1)));
-    }
-    std::vector<cv::Vec6f> triangleList;
-    subd.getTriangleList(triangleList);
-        
-    // TODO
-    //cv::PCA pca();
-}
-*/
+void aam::drawShape(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& contour) {
 
-bool aam::showTrainingData(const TrainingData& trainingData) {
-        
-    cv::Mat dispImg;
-    trainingData.img.copyTo(dispImg);
-    for (int j = 0; j < trainingData.coords.rows; j++) {
-        float x = (float)(trainingData.coords.at<double>(j, 0) * (double)dispImg.cols);
-        float y = (float)(trainingData.coords.at<double>(j, 1) * (double)dispImg.rows);
-        cv::circle(dispImg, cv::Point2f(x, y), 3, cv::Scalar(255), 2);
+    for (int j = 0; j < shape.cols / 2; j++) {
+        float x = (float)(shape.at<double>(0, j * 2 + 0) * (double)canvas.cols);
+        float y = (float)(shape.at<double>(0, j * 2 + 1) * (double)canvas.rows);
+        cv::circle(canvas, cv::Point2f(x, y), 2, cv::Scalar(255), 1);
 
         //int c1 = pimpl->trainingSet[i].triangles.at<unsigned short>(j, 0);
-        int c1 = trainingData.contours.at<unsigned short>(j, 1);
-        int c2 = trainingData.contours.at<unsigned short>(j, 2);
-        float x1 = (float)(trainingData.coords.at<double>(c1, 0) * (double)dispImg.cols);
-        float y1 = (float)(trainingData.coords.at<double>(c1, 1) * (double)dispImg.rows);
-        float x2 = (float)(trainingData.coords.at<double>(c2, 0) * (double)dispImg.cols);
-        float y2 = (float)(trainingData.coords.at<double>(c2, 1) * (double)dispImg.rows);
-        cv::line(dispImg, cv::Point2f(x, y), cv::Point2f(x1, y1), cv::Scalar(255), 1);
-        cv::line(dispImg, cv::Point2f(x, y), cv::Point2f(x2, y2), cv::Scalar(255), 1);
+        int c1 = contour.at<unsigned short>(j, 1);
+        int c2 = contour.at<unsigned short>(j, 2);
+        float x1 = (float)(shape.at<double>(0, c1 * 2 + 0) * (double)canvas.cols);
+        float y1 = (float)(shape.at<double>(0, c1 * 2 + 1) * (double)canvas.rows);
+        float x2 = (float)(shape.at<double>(0, c2 * 2 + 0) * (double)canvas.cols);
+        float y2 = (float)(shape.at<double>(0, c2 * 2 + 1) * (double)canvas.rows);
+        cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x1, y1), cv::Scalar(255), 1);
+        cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x2, y2), cv::Scalar(255), 1);
     }
-    cv::imshow("img", dispImg);
-    cv::waitKey(0);
-
-    return true;
 }
 
-bool aam::showTrainingSet(const TrainingSet& trainingSet) {
-    for (size_t i = 0; i < trainingSet.size(); i++) {
-        showTrainingData(trainingSet[i]);
+void aam::showTrainingSet(const aam::TrainingSet& trainingSet) {
+    for (int i = 0; i < (int)trainingSet.images.size(); i++) {
+        cv::Mat dispImg;
+        trainingSet.images[i].copyTo(dispImg);
+        drawShape(dispImg, trainingSet.shapes.rowRange(i, i + 1), trainingSet.contour);
+
+        cv::imshow("img", dispImg);
+        cv::waitKey(0);
     }
-    return true;
 }

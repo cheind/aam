@@ -34,6 +34,9 @@ target_link_libraries(aam ${OpenCV_LIBRARIES})
 add_executable(aam_shapemorph examples/shapemorph.cpp)
 target_link_libraries(aam_shapemorph aam ${OpenCV_LIBRARIES})
 
+add_executable(aam_showtrainingdata examples/showtrainingdata.cpp)
+target_link_libraries(aam_showtrainingdata aam ${OpenCV_LIBRARIES})
+
 # Tests
 
 add_executable(tests

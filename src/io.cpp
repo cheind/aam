@@ -41,7 +41,7 @@ bool parseAsfFile(const std::string& fileName, cv::Mat& coords, cv::Mat& contour
                 else if (line.size() < 10) {
                     int nbPoints = atol(line.c_str());
                     //std::cout << "number of landmark points in file: " << nbPoints << std::endl;
-                    coords = cv::Mat(nbPoints, 2, CV_64F);
+                    coords = cv::Mat(1, nbPoints * 2, CV_64F);
                     contours = cv::Mat(nbPoints, 3, CV_16U);
                 }
                 else {
@@ -67,8 +67,8 @@ bool parseAsfFile(const std::string& fileName, cv::Mat& coords, cv::Mat& contour
                     int c1 = atoi(conn1Str.c_str());
                     int c2 = atoi(conn2Str.c_str());
 
-                    coords.at<double>(landmarkCount, 0) = x;
-                    coords.at<double>(landmarkCount, 1) = y;
+                    coords.at<double>(0, landmarkCount * 2 + 0) = x;
+                    coords.at<double>(0, landmarkCount * 2 + 1) = y;
 
                     contours.at<unsigned short>(landmarkCount, 0) = id;
                     contours.at<unsigned short>(landmarkCount, 1) = c1;
@@ -83,24 +83,30 @@ bool parseAsfFile(const std::string& fileName, cv::Mat& coords, cv::Mat& contour
 }
 
 bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& trainingSet) {
+
+    trainingSet.images.clear();
+
+    std::vector<cv::Mat> shapeVecs;
+
+    cv::Mat contour;
+    
     bool ok = true;
     int i = 1;
     do {
         bool subIdOK = true;
         int j = 1;
         do {
-            aam::TrainingData data;
             char *name = new char[directory.size() + 100];
             sprintf(name, "%s/%02d-%dm", directory.c_str(), i, j);
             std::string fileNameImg = std::string(name) + ".jpg";
             std::string fileNamePts = std::string(name) + ".asf";
-            data.img = cv::imread(fileNameImg, 0);
+            cv::Mat img = cv::imread(fileNameImg, 0);
             std::cout << "loading " << fileNameImg << ", " << fileNamePts << std::endl;
-            parseAsfFile(fileNamePts, data.coords, data.contours);
-            if (data.coords.rows > 0) {
-                //data.name = (boost::format("%02d-%dm") % i % j).str();
-                data.name = std::string(name);
-                trainingSet.push_back(data);
+            cv::Mat coords;
+            parseAsfFile(fileNamePts, coords, contour);
+            if (coords.rows > 0) {
+                shapeVecs.push_back(coords);
+                trainingSet.images.push_back(img);
                 j++;
             }
             else {
@@ -113,5 +119,14 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
         }
         i++;
     } while (ok);
+
+    // assemble the complete shape matrix from all training shapes that are given as row vectors
+    trainingSet.shapes = cv::Mat((int)shapeVecs.size(), shapeVecs[0].cols, CV_64F);
+    for (size_t i = 0; i < shapeVecs.size(); i++) {
+        shapeVecs[i].copyTo(trainingSet.shapes.rowRange(i, i + 1));
+    }
+
+    trainingSet.contour = contour;
+
     return true;
 }
