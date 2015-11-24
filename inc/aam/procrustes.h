@@ -39,6 +39,18 @@ namespace aam {
      */
     Scalar procrustes(Eigen::Ref<const MatrixX> X, Eigen::Ref<MatrixX> Y);
 
+    /** Compute Procrustes shape normalization of n-shapes.
+
+        Procrustes analysis determines a linear transformation (translation,
+        reflection, orthogonal rotation and scaling) of the points in Y to best
+        conform them to the points in matrix X, using the sum of squared errors
+        as the goodness of fit criterion.
+
+        \param X NxM Shape Matrix
+        \param maxIteraions Maximum number of iterations to perform normalization.
+    */
+    void generalizedProcrustes(Eigen::Ref<MatrixX> X, int maxIterations);
+
 }
 
 #endif
