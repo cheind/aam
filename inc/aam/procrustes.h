@@ -32,6 +32,11 @@ namespace aam {
         conform them to the points in matrix X, using the sum of squared errors
         as the goodness of fit criterion.
      
+        Based on
+        Stegmann, Mikkel B., and David Delgado Gomez. 
+        "A brief introduction to statistical shape analysis." 
+        Informatics and Mathematical Modelling, Technical University of Denmark, DTU 15 (2002): 11.
+     
         \param X Nx2 Target shape consisting of N two-dimensional measurements.
         \param Y Nx2 Input shape consisting of N two-dimensional measurements.
         \param t 3x3 Similarity transform applied to Y.
@@ -41,10 +46,16 @@ namespace aam {
 
     /** Compute Procrustes shape normalization of n-shapes.
 
-        Procrustes analysis determines a linear transformation (translation,
-        reflection, orthogonal rotation and scaling) of the points in Y to best
-        conform them to the points in matrix X, using the sum of squared errors
-        as the goodness of fit criterion.
+        Similar to aam::procrustes but computes normalizations for a set of shapes concurrently.
+        Optimization is based on iterative approach that compares a reference shape to the current
+        mean shape in each iteration. If the Procrustes distance is above a threshold, the mean
+        shape is made the new reference mesh and the binary procrustes is applied between the new
+        reference mesh and each shape.
+     
+        Based on
+        Stegmann, Mikkel B., and David Delgado Gomez.
+        "A brief introduction to statistical shape analysis."
+        Informatics and Mathematical Modelling, Technical University of Denmark, DTU 15 (2002): 11.
 
         \param X NxM Shape Matrix
         \param maxIteraions Maximum number of iterations to perform normalization.
