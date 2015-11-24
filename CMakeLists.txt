@@ -8,6 +8,7 @@ if (WIN32)
 endif()
 
 set(EIGEN_INCLUDE_DIR "../eigen" CACHE PATH "Where is the include directory of Eigen located")
+set(AAM_TESTS_VERBOSE 0 CACHE BOOL "Tests will show visualizations when enabled")
 find_package(OpenCV REQUIRED)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${OpenCV_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIR} "inc")
@@ -41,7 +42,9 @@ target_link_libraries(aam_showtrainingdata aam ${OpenCV_LIBRARIES})
 
 # Tests
 
+configure_file(tests/config.h.in test_config.h)
 add_executable(tests
+	test_config.h
     tests/catch.hpp
 	tests/random_distributions.h
     tests/pca.cpp
