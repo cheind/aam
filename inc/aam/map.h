@@ -52,7 +52,7 @@ namespace aam {
 
         int outerStride = m1.step[0] / sizeof(Scalar);
 
-        return MapMatrixX(m1.ptr<Scalar>(), m1.rows, m1.cols, Eigen::Stride < Eigen::Dynamic, Eigen::Dynamic>(outerStride, 1));
+        return MapMatrixX(m1.ptr<Scalar>(), m1.rows, m1.cols, Eigen::Stride < Eigen::Dynamic, 1>(outerStride, 1));
     }
 
     /** Convert OpenCV matrix to Eigen without copying. */
@@ -67,7 +67,7 @@ namespace aam {
 
         int outerStride = m1.step[0] / sizeof(Scalar);
 
-        return typename EigenMatrixMapTraits<Scalar>::MapType(m1.ptr<Scalar>(), m1.rows, m1.cols, Eigen::Stride < Eigen::Dynamic, Eigen::Dynamic>(outerStride, 1));
+        return typename EigenMatrixMapTraits<Scalar>::MapType(m1.ptr<Scalar>(), m1.rows, m1.cols, Eigen::Stride < Eigen::Dynamic, 1>(outerStride, 1));
     }
 
 

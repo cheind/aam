@@ -31,7 +31,7 @@ namespace aam {
     template<class Scalar>
     struct EigenMatrixMapTraits {
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
-        typedef Eigen::Map< MatrixType, 0, Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic> > MapType;
+        typedef Eigen::Map< MatrixType, 0, Eigen::Stride<Eigen::Dynamic, 1> > MapType;
     };
     
     /** Precision */

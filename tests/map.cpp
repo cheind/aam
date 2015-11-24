@@ -41,6 +41,10 @@ bool compareForMatricesForEquality(const cv::Mat m, const EigenMatrix &b)
     return true;
 }
 
+void funcTakingMatrixRef(Eigen::Ref<aam::MatrixX> r) {
+    r.setZero();
+}
+
 TEST_CASE("map-header-only")
 {
     aam::MatrixX mEigen = aam::MatrixX::Random(8, 6);
@@ -76,5 +80,11 @@ TEST_CASE("map-header-only")
     REQUIRE(eigenMapped.rows() == 100);
     REQUIRE(eigenMapped.cols() == 300); // Single channel support in Eigen
     REQUIRE(compareForMatricesForEquality(img.reshape(1), eigenMapped));
+    
+    // Regression compile issue #1 was caused by having a different stride on Map and Ref.
+    cv::Mat m(1,1, CV_32FC1);
+    m.setTo(255);
+    funcTakingMatrixRef(aam::toEigenHeader(m));
+    REQUIRE(cv::countNonZero(m) == 0);
    
 }
