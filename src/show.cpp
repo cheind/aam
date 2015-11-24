@@ -23,12 +23,12 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <opencv/highgui.h>
 
 namespace aam {
-    void drawShape(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& contour) {
+    void drawShape(cv::Mat& canvas, const cv::Mat& shape, const cv::Scalar &color, const cv::Mat& contour) {
 
         for (int j = 0; j < shape.cols / 2; j++) {
             Scalar x = (shape.at<Scalar>(0, j * 2 + 0) * (Scalar)canvas.cols);
             Scalar y = (shape.at<Scalar>(0, j * 2 + 1) * (Scalar)canvas.rows);
-            cv::circle(canvas, cv::Point2f(x, y), 2, cv::Scalar(255), 1, CV_AA);
+            cv::circle(canvas, cv::Point2f(x, y), 2, color, 1, CV_AA);
 
             if (!contour.empty()) {
                 int c1 = contour.at<unsigned short>(j, 1);
@@ -37,8 +37,8 @@ namespace aam {
                 Scalar y1 = (shape.at<Scalar>(0, c1 * 2 + 1) * (Scalar)canvas.rows);
                 Scalar x2 = (shape.at<Scalar>(0, c2 * 2 + 0) * (Scalar)canvas.cols);
                 Scalar y2 = (shape.at<Scalar>(0, c2 * 2 + 1) * (Scalar)canvas.rows);
-                cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x1, y1), cv::Scalar(255), 1, CV_AA);
-                cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x2, y2), cv::Scalar(255), 1, CV_AA);
+                cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x1, y1), color, 1, CV_AA);
+                cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x2, y2), color, 1, CV_AA);
             }
         }
     }
@@ -47,7 +47,7 @@ namespace aam {
         for (int i = 0; i < (int)trainingSet.images.size(); i++) {
             cv::Mat dispImg;
             trainingSet.images[i].copyTo(dispImg);
-            drawShape(dispImg, trainingSet.shapes.rowRange(i, i + 1), trainingSet.contour);
+            drawShape(dispImg, trainingSet.shapes.rowRange(i, i + 1), cv::Scalar::all(255), trainingSet.contour);
 
             cv::imshow("img", dispImg);
             cv::waitKey(0);

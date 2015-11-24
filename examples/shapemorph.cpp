@@ -23,6 +23,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
+#include <iomanip>
 
 /**
  
@@ -60,7 +61,7 @@ int main(int argc, char **argv)
 
         cv::Mat s = mean + w0 * vecs.rowRange(0, 1) + w1 * vecs.rowRange(1, 2);
 
-        aam::drawShape(dispImg, s, trainingSet.contour);
+        aam::drawShape(dispImg, s, cv::Scalar::all(255), trainingSet.contour);
         cv::imshow("img", dispImg);
         std::cout << "w = " << w0 << std::endl;
         key = cv::waitKey(10);
