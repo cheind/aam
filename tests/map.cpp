@@ -33,7 +33,7 @@ bool compareForMatricesForEquality(const cv::Mat m, const EigenMatrix &b)
 
     for (int y = 0; y < m.rows; ++y) {
         for (int x = 0; x < m.cols; ++x) {
-            if (m.at<EigenMatrix::Scalar>(y, x) != Approx(b(y, x)))
+            if (m.at<typename EigenMatrix::Scalar>(y, x) != Approx(b(y, x)))
                 return false;
         }
     }

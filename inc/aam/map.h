@@ -67,7 +67,7 @@ namespace aam {
 
         int outerStride = m1.step[0] / sizeof(Scalar);
 
-        return EigenMatrixMapTraits<Scalar>::MapType(m1.ptr<Scalar>(), m1.rows, m1.cols, Eigen::Stride < Eigen::Dynamic, Eigen::Dynamic>(outerStride, 1));
+        return typename EigenMatrixMapTraits<Scalar>::MapType(m1.ptr<Scalar>(), m1.rows, m1.cols, Eigen::Stride < Eigen::Dynamic, Eigen::Dynamic>(outerStride, 1));
     }
 
 

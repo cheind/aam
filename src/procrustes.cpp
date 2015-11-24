@@ -61,7 +61,7 @@ namespace aam {
         Scalar trace = s.sum();
 
         // Scaling of Y
-        Scalar b = trace * sX / sY;
+        // Scalar b = trace * sX / sY;
 
         // Distance of X and T(Y)
         Scalar d = 1 - trace * trace;

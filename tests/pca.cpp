@@ -84,6 +84,6 @@ TEST_CASE("pca-gaussian")
     aam::computePCA(samples, pcamean, pcabasis, pcaweights);
 
     REQUIRE(pcamean.isApprox(mean, 0.1f));
-    REQUIRE(abs(pcabasis.row(1).dot(aam::RowVector2(1, 1).normalized())) == Catch::Detail::Approx(1).epsilon(0.1));
-    REQUIRE(abs(pcabasis.row(0).dot(aam::RowVector2(-1, 1).normalized())) == Catch::Detail::Approx(1).epsilon(0.1));
+    REQUIRE(std::abs(pcabasis.row(1).dot(aam::RowVector2(1, 1).normalized())) == Catch::Detail::Approx(1).epsilon(0.1));
+    REQUIRE(std::abs(pcabasis.row(0).dot(aam::RowVector2(-1, 1).normalized())) == Catch::Detail::Approx(1).epsilon(0.1));
 }

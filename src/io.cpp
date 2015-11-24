@@ -97,7 +97,11 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
         int j = 1;
         do {
             char *name = new char[directory.size() + 100];
+#ifdef _WIN32
             sprintf_s(name, directory.size() + 100, "%s/%02d-%dm", directory.c_str(), i, j);
+#else
+            sprintf(name, "%s/%02d-%dm", directory.c_str(), i, j);
+#endif
             std::string fileNameImg = std::string(name) + ".jpg";
             std::string fileNamePts = std::string(name) + ".asf";
             cv::Mat img = cv::imread(fileNameImg, 0);
