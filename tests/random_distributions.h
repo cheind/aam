@@ -24,6 +24,7 @@ along with AMM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/types.h>
 #include <Eigen/Dense>
 #include <random>
+#include <iostream>
 
 namespace Eigen {
     namespace internal {
@@ -52,13 +53,13 @@ namespace Eigen {
     } 
 }
 
-inline aam::MatrixX sampleMultivariateGaussian(Eigen::Ref<const aam::VectorX> mean, Eigen::Ref<const aam::MatrixX> covar, int samples, unsigned long seed = 5489UL)
+inline aam::MatrixX sampleMultivariateGaussian(Eigen::Ref<const aam::RowVectorX> mean, Eigen::Ref<const aam::MatrixX> covar, int samples, unsigned long seed = 5489UL)
 {
     Eigen::SelfAdjointEigenSolver<aam::MatrixX> solver(covar);
     aam::MatrixX transform  = solver.eigenvectors() * solver.eigenvalues().cwiseMax(0).cwiseSqrt().asDiagonal();
     Eigen::internal::ScalarNormalDistOp<aam::Scalar> op;
     op.rng.seed(seed);
-    return (transform * aam::MatrixX::NullaryExpr(mean.rows(), samples, op)).colwise() + mean;
+    return (aam::MatrixX::NullaryExpr(samples, mean.cols(), op) * transform.transpose()).rowwise() + mean;
 }
 
 inline aam::MatrixX generate2DCovarianceMatrixFromStretchAndRotation(double varX, double varY, double theta)

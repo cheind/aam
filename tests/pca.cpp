@@ -25,7 +25,7 @@ along with AMM.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 
-TEST_CASE("pca")
+TEST_CASE("pca-ray")
 {
     // Sample 2d points from line model
     typedef Eigen::ParametrizedLine<float, 3> Ray;
@@ -33,39 +33,57 @@ TEST_CASE("pca")
     Ray r(Eigen::Vector3f(2, 3, 0),
           Eigen::Vector3f(1, 1, 1).normalized());
 
-    Eigen::VectorXf ts = Eigen::VectorXf::Random(1000);
+    Eigen::VectorXf ts = Eigen::VectorXf::Random(100);
     
-    Eigen::MatrixXf data(3, ts.size());
+    aam::MatrixX data(ts.size(), 3);
     for (Eigen::VectorXf::Index i = 0; i < ts.rows(); ++i) {
-        data.col(i) = r.pointAt(ts(i));
+        data.row(i) = r.pointAt(ts(i));
     }
     
     // Compute PCA
-    Eigen::Vector3f mean(data.rows());
-    Eigen::MatrixXf basis(data.rows(), data.rows());
-    Eigen::Vector3f weights(data.rows());
+    aam::RowVector3 mean(data.cols());
+    aam::MatrixX basis(data.cols(), data.cols());
+    aam::RowVector3 weights(data.cols());
     aam::computePCA(data, mean, basis, weights);
     
-    Eigen::Vector3f::Index dims = aam::computePCADimensionality(weights, 0.f);
+    Eigen::Vector3f::Index dims = aam::computePCADimensionality(weights, 0.00001f);
     REQUIRE(dims == 1);
     
     // Verify results
-    REQUIRE(mean.isApprox(Eigen::Vector3f(2,3,0), 0.1f));
-    REQUIRE((basis.col(2) - r.direction()).norm() == Catch::Detail::Approx(0).epsilon(0.1));
+    REQUIRE(mean.isApprox(r.origin().transpose(), 0.1f));
+    REQUIRE((basis.row(2) - r.direction().transpose()).norm() == Catch::Detail::Approx(0).epsilon(0.1));
 
     // Projection of data onto PCA basis is then a simple matter of matrix mul.
-    Eigen::MatrixXf proj = basis.rightCols(dims).transpose() * data;
-    const float corr = (basis.rightCols(dims).transpose() * Eigen::Vector3f(2, 3, 0))(0);
+    Eigen::MatrixXf proj = data * basis.bottomRows(dims).transpose();
+    const float corr = (r.origin().transpose() * basis.bottomRows(dims).transpose())(0);
     for (Eigen::VectorXf::Index i = 0; i < ts.rows(); ++i) {
-        REQUIRE((proj(0, i) - corr) == Catch::Detail::Approx(ts(i)).epsilon(0.1));
+        REQUIRE((proj(i, 0) - corr) == Catch::Detail::Approx(ts(i)).epsilon(0.1));
     }
 }
 
-TEST_CASE("gaussian")
+TEST_CASE("pca-gaussian")
 {
-    aam::MatrixX cov = generate2DCovarianceMatrixFromStretchAndRotation(3, 0.0, 5.0 / 3.1415);
-    aam::MatrixX mean(2, 1);
+    aam::RowVector2 mean;
     mean << -1.f, 0.5f;
+    aam::MatrixX cov = generate2DCovarianceMatrixFromStretchAndRotation(3, 0.01, 0.0);
     aam::MatrixX samples = sampleMultivariateGaussian(mean, cov, 50);
-    std::cout << samples.transpose() << std::endl;
+
+    aam::RowVector2 pcamean;
+    aam::Matrix2 pcabasis;
+    aam::RowVector2 pcaweights;
+    aam::computePCA(samples, pcamean, pcabasis, pcaweights);
+
+    REQUIRE(pcamean.isApprox(mean, 0.1f));
+    REQUIRE((pcabasis.row(1) - aam::RowVector2::Unit(0)).norm() == Catch::Detail::Approx(0).epsilon(0.1));
+    REQUIRE((pcabasis.row(0) - aam::RowVector2::Unit(1)).norm() == Catch::Detail::Approx(0).epsilon(0.1));
+
+
+    // Rotate by 45°
+    cov = generate2DCovarianceMatrixFromStretchAndRotation(3, 0.01, 45.0 / 180.0 * 3.14159265359);
+    samples = sampleMultivariateGaussian(mean, cov, 50);
+    aam::computePCA(samples, pcamean, pcabasis, pcaweights);
+
+    REQUIRE(pcamean.isApprox(mean, 0.1f));
+    REQUIRE(abs(pcabasis.row(1).dot(aam::RowVector2(1, 1).normalized())) == Catch::Detail::Approx(1).epsilon(0.1));
+    REQUIRE(abs(pcabasis.row(0).dot(aam::RowVector2(-1, 1).normalized())) == Catch::Detail::Approx(1).epsilon(0.1));
 }

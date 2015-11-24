@@ -18,7 +18,7 @@ add_library(aam
     inc/aam/types.h
 	inc/aam/pca.h
 	inc/aam/dummy.h
-	src/dummy.cpp	
+	src/pca.cpp	
 )
 	
 target_link_libraries(aam ${OpenCV_LIBRARIES})
