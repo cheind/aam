@@ -38,8 +38,7 @@ namespace aam {
         Informatics and Mathematical Modelling, Technical University of Denmark, DTU 15 (2002): 11.
      
         \param X Nx2 Target shape consisting of N two-dimensional measurements.
-        \param Y Nx2 Input shape consisting of N two-dimensional measurements.
-        \param t 3x3 Similarity transform applied to Y.
+        \param Y Nx2 Input shape consisting of N two-dimensional measurements. Modified in place.
         \return Normalized distance between X and transformed Y.
      */
     Scalar procrustes(Eigen::Ref<const MatrixX> X, Eigen::Ref<MatrixX> Y);
