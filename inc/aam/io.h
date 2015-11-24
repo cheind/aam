@@ -18,13 +18,17 @@ You should have received a copy of the GNU General Public License
 along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AAM_DUMMY_H
-#define AAM_DUMMY_H
+#ifndef AAM_IO_H
+#define AAM_IO_H
+
+#include <aam/fwd.h>
 
 namespace aam {
-   
-   void dummy();
 
+    bool loadAsfTrainingSet(const std::string& directory, TrainingSet& trainingSet);
 }
 
 #endif
+
+
+

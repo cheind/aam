@@ -18,24 +18,22 @@ You should have received a copy of the GNU General Public License
 along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <aam/aam.h>
-#include <aam/io.h>
+#ifndef AAM_SHOW_H
+#define AAM_SHOW_H
 
-/**
- 
- Main entry point.
- 
- */
-int main(int argc, char **argv)
-{
-    aam::TrainingSet trainingSet;
-    aam::loadAsfTrainingSet("c:/GIT/AAM_data/data", trainingSet);
+#include <aam/fwd.h>
 
-    aam::showTrainingSet(trainingSet);
+namespace aam {
 
-	return 0;
+// for debugging: display a single training data (image + shape)
+bool showTrainingData(const TrainingData& trainingData);
+
+// for debugging: display the complete training set
+bool showTrainingSet(const TrainingSet& trainingSet);
+
+// TODO
+//void training(std::vector<TrainingData> data, cv::Mat& eigenVecs, cv::Mat& eigenValues, cv::Mat& mean, double maxPercentVariation, ...);
+
 }
 
-
-
-
+#endif

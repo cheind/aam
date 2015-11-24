@@ -18,10 +18,11 @@ You should have received a copy of the GNU General Public License
 along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef AAM_H
+#define AAM_H
 
-#include <aam/dummy.h>
+#include <aam/types.h>
+#include <aam/io.h>
+#include <aam/show.h>
 
-namespace aam {
-    
-    void dummy() {}
-}
+#endif

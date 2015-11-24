@@ -15,11 +15,16 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${OpenCV_INCLUDE_DIRS} ${EIGEN_I
 # Library
 
 add_library(aam
+    inc/aam/fwd.h
     inc/aam/types.h
 	inc/aam/map.h
 	inc/aam/pca.h
-	inc/aam/dummy.h
+	inc/aam/aam.h
+	inc/aam/io.h
+	inc/aam/show.h
 	src/pca.cpp	
+	src/io.cpp
+	src/show.cpp
 )
 	
 target_link_libraries(aam ${OpenCV_LIBRARIES})

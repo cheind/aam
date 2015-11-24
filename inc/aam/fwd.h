@@ -18,24 +18,15 @@ You should have received a copy of the GNU General Public License
 along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <aam/aam.h>
-#include <aam/io.h>
+#ifndef AAM_FWD_H
+#define AAM_FWD_H
 
-/**
- 
- Main entry point.
- 
- */
-int main(int argc, char **argv)
-{
-    aam::TrainingSet trainingSet;
-    aam::loadAsfTrainingSet("c:/GIT/AAM_data/data", trainingSet);
+#include <vector>
+#include <iosfwd>
 
-    aam::showTrainingSet(trainingSet);
-
-	return 0;
+namespace aam {
+    struct TrainingData;
+    typedef std::vector<TrainingData> TrainingSet;
 }
 
-
-
-
+#endif

@@ -22,6 +22,8 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #define AAM_TYPES_H
 
 #include <Eigen/Core>
+#include <opencv2/core/core.hpp>
+#include <vector>
 
 namespace aam {
 
@@ -52,6 +54,35 @@ namespace aam {
 
     /** Generic 1x3 row vector. */
     typedef Eigen::Matrix<Scalar, 1, 3> RowVector3;
+
+
+    struct TrainingData {
+    public:
+        std::string name;  // optional: the name of the dataset (may be an empty string)
+        cv::Mat img;       // training image
+        cv::Mat coords;    // Nx2 Matrix of 2D landmark points (x0, y0, x1, y1, x2, y2, ...)
+        cv::Mat contours;  // optional: contours defined on the object (this data is just for visualization, not needed for actual AAM)
+    };
+
+    // the complete training set is a vector of training data
+    typedef std::vector<TrainingData> TrainingSet;
+
+    struct ActiveAppearanceModel {
+        //mean
+        //eigenVectors
+        //eigenvalues
+        cv::Mat1i triangleIndices;  // Nx3 Matrix of landmark points connectivity (i.e. triangles from Delaunay triangulation)
+    };
+
+    // for debugging: display a single training data (image + shape)
+    bool showTrainingData(const TrainingData& trainingData);
+
+    // for debugging: display the complete training set
+    bool showTrainingSet(const TrainingSet& trainingSet);
+
+    // TODO
+    //void training(std::vector<TrainingData> data, cv::Mat& eigenVecs, cv::Mat& eigenValues, cv::Mat& mean, double maxPercentVariation, ...);
+
 
 }
 
