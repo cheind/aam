@@ -27,5 +27,6 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/show.h>
 #include <aam/pca.h>
 #include <aam/procrustes.h>
+#include <aam/barycentrics.h>
 
 #endif

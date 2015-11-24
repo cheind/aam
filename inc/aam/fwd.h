@@ -26,6 +26,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace aam {
     struct TrainingSet;
+    class ParametrizedTriangle;
 }
 
 #endif

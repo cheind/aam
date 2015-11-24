@@ -24,6 +24,7 @@ add_library(aam
 	inc/aam/io.h
 	inc/aam/show.h
 	inc/aam/procrustes.h
+	inc/aam/barycentrics.h
 	src/pca.cpp	
 	src/io.cpp
 	src/show.cpp
@@ -50,5 +51,6 @@ add_executable(tests
     tests/pca.cpp
 	tests/procrustes.cpp
 	tests/map.cpp
+	tests/barycentrics.cpp
 )
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})
