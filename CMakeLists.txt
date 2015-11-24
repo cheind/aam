@@ -16,6 +16,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${OpenCV_INCLUDE_DIRS} ${EIGEN_I
 
 add_library(aam
     inc/aam/types.h
+	inc/aam/map.h
 	inc/aam/pca.h
 	inc/aam/dummy.h
 	src/pca.cpp	
@@ -34,6 +35,6 @@ add_executable(tests
     tests/catch.hpp
 	tests/random_distributions.h
     tests/pca.cpp
-    tests/dummy.cpp
+	tests/map.cpp
 )
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})

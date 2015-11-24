@@ -24,12 +24,22 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <Eigen/Core>
 
 namespace aam {
+
+    /** Type traits for mapping matrices */
+    template<class Scalar>
+    struct EigenMatrixMapTraits {
+        typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
+        typedef Eigen::Map< MatrixType, 0, Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic> > MapType;
+    };
     
     /** Precision */
     typedef float Scalar;
     
     /** Generic MxN matrix set to storage order compatible with OpenCV matrices. */
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixX;
+
+    /** Mapped MxN matrix with external storage. */
+    typedef EigenMatrixMapTraits<Scalar>::MapType MapMatrixX;
 
     /** Generic 2x2 matrix set to storage order compatible with OpenCV matrices. */
     typedef Eigen::Matrix<Scalar, 2, 2, Eigen::RowMajor> Matrix2;
