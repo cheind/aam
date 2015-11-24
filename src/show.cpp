@@ -28,16 +28,18 @@ namespace aam {
         for (int j = 0; j < shape.cols / 2; j++) {
             Scalar x = (shape.at<Scalar>(0, j * 2 + 0) * (Scalar)canvas.cols);
             Scalar y = (shape.at<Scalar>(0, j * 2 + 1) * (Scalar)canvas.rows);
-            cv::circle(canvas, cv::Point2f(x, y), 2, cv::Scalar(255), 1);
+            cv::circle(canvas, cv::Point2f(x, y), 2, cv::Scalar(255), 1, CV_AA);
 
-            int c1 = contour.at<unsigned short>(j, 1);
-            int c2 = contour.at<unsigned short>(j, 2);
-            Scalar x1 = (shape.at<Scalar>(0, c1 * 2 + 0) * (Scalar)canvas.cols);
-            Scalar y1 = (shape.at<Scalar>(0, c1 * 2 + 1) * (Scalar)canvas.rows);
-            Scalar x2 = (shape.at<Scalar>(0, c2 * 2 + 0) * (Scalar)canvas.cols);
-            Scalar y2 = (shape.at<Scalar>(0, c2 * 2 + 1) * (Scalar)canvas.rows);
-            cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x1, y1), cv::Scalar(255), 1);
-            cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x2, y2), cv::Scalar(255), 1);
+            if (!contour.empty()) {
+                int c1 = contour.at<unsigned short>(j, 1);
+                int c2 = contour.at<unsigned short>(j, 2);
+                Scalar x1 = (shape.at<Scalar>(0, c1 * 2 + 0) * (Scalar)canvas.cols);
+                Scalar y1 = (shape.at<Scalar>(0, c1 * 2 + 1) * (Scalar)canvas.rows);
+                Scalar x2 = (shape.at<Scalar>(0, c2 * 2 + 0) * (Scalar)canvas.cols);
+                Scalar y2 = (shape.at<Scalar>(0, c2 * 2 + 1) * (Scalar)canvas.rows);
+                cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x1, y1), cv::Scalar(255), 1, CV_AA);
+                cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x2, y2), cv::Scalar(255), 1, CV_AA);
+            }
         }
     }
 
