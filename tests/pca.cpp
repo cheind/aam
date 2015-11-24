@@ -19,7 +19,7 @@ along with AMM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "catch.hpp"
-
+#include "random_distributions.h"
 #include <aam/pca.h>
 #include <Eigen/Geometry>
 #include <iostream>
@@ -59,5 +59,13 @@ TEST_CASE("pca")
     for (Eigen::VectorXf::Index i = 0; i < ts.rows(); ++i) {
         REQUIRE((proj(0, i) - corr) == Catch::Detail::Approx(ts(i)).epsilon(0.1));
     }
-    
+}
+
+TEST_CASE("gaussian")
+{
+    aam::MatrixX cov = generate2DCovarianceMatrixFromStretchAndRotation(3, 0.0, 5.0 / 3.1415);
+    aam::MatrixX mean(2, 1);
+    mean << -1.f, 0.5f;
+    aam::MatrixX samples = sampleMultivariateGaussian(mean, cov, 50);
+    std::cout << samples.transpose() << std::endl;
 }

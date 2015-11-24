@@ -32,6 +32,7 @@ target_link_libraries(aam_shapemorph aam ${OpenCV_LIBRARIES})
 
 add_executable(tests
     tests/catch.hpp
+	tests/random_distributions.h
     tests/pca.cpp
     tests/dummy.cpp
 )
