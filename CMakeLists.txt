@@ -22,9 +22,11 @@ add_library(aam
 	inc/aam/aam.h
 	inc/aam/io.h
 	inc/aam/show.h
+	inc/aam/procrustes.h
 	src/pca.cpp	
 	src/io.cpp
 	src/show.cpp
+	src/procrustes.cpp
 )
 	
 target_link_libraries(aam ${OpenCV_LIBRARIES})
@@ -43,6 +45,7 @@ add_executable(tests
     tests/catch.hpp
 	tests/random_distributions.h
     tests/pca.cpp
+	tests/procrustes.cpp
 	tests/map.cpp
 )
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})
