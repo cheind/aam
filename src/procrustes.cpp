@@ -72,7 +72,7 @@ namespace aam {
         return d;
     }
 
-    void generalizedProcrustes(Eigen::Ref<MatrixX> X, int maxIterations)
+    Scalar generalizedProcrustes(Eigen::Ref<MatrixX> X, int maxIterations)
     {
         // Reformat X so that each shape takes up two colums for x and y measurements.
         const MatrixX::Index nShapes = X.rows();
@@ -115,9 +115,11 @@ namespace aam {
             meanShape /= (Scalar)nShapes;
 
             Scalar dist = (meanShape - refShape).norm();
-            if (dist > lastDist || fabs(dist / lastDist) < aam::Scalar(0.001) || ++iterations > maxIterations)
+            if (dist > lastDist || ++iterations > maxIterations)
                 done = true;
 
+
+            lastDist = dist;
             refShape = meanShape;
 
         }  while (!done);
@@ -132,7 +134,8 @@ namespace aam {
                 rowX(x) = shape(r, 0);
                 rowX(x + 1) = shape(r, 1);                 
             }
-
         }
+        
+        return lastDist;
     }
 }

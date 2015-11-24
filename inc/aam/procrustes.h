@@ -48,8 +48,9 @@ namespace aam {
 
         \param X NxM Shape Matrix
         \param maxIteraions Maximum number of iterations to perform normalization.
+        \return Normalized distance between mean shape and reference shape in last iteration.
     */
-    void generalizedProcrustes(Eigen::Ref<MatrixX> X, int maxIterations);
+    Scalar generalizedProcrustes(Eigen::Ref<MatrixX> X, int maxIterations);
 
 }
 
