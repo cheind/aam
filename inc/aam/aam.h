@@ -22,7 +22,10 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #define AAM_H
 
 #include <aam/types.h>
+#include <aam/map.h>
 #include <aam/io.h>
 #include <aam/show.h>
+#include <aam/pca.h>
+#include <aam/procrustes.h>
 
 #endif
