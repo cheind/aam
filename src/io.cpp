@@ -41,7 +41,7 @@ bool parseAsfFile(const std::string& fileName, cv::Mat& coords, cv::Mat& contour
                 else if (line.size() < 10) {
                     int nbPoints = atol(line.c_str());
                     //std::cout << "number of landmark points in file: " << nbPoints << std::endl;
-                    coords = cv::Mat(1, nbPoints * 2, CV_64F);
+                    coords = cv::Mat(1, nbPoints * 2, CV_MAKETYPE(cv::DataType<aam::Scalar>::depth, 1));
                     contours = cv::Mat(nbPoints, 3, CV_16U);
                 }
                 else {
@@ -61,14 +61,14 @@ bool parseAsfFile(const std::string& fileName, cv::Mat& coords, cv::Mat& contour
                     stream >> conn1Str;
                     stream >> conn2Str;
 
-                    double x = atof(xStr.c_str());
-                    double y = atof(yStr.c_str());
+                    aam::Scalar x = (aam::Scalar)atof(xStr.c_str());
+                    aam::Scalar y = (aam::Scalar)atof(yStr.c_str());
                     int id = atoi(pointIdStr.c_str());
                     int c1 = atoi(conn1Str.c_str());
                     int c2 = atoi(conn2Str.c_str());
 
-                    coords.at<double>(0, landmarkCount * 2 + 0) = x;
-                    coords.at<double>(0, landmarkCount * 2 + 1) = y;
+                    coords.at<aam::Scalar>(0, landmarkCount * 2 + 0) = x;
+                    coords.at<aam::Scalar>(0, landmarkCount * 2 + 1) = y;
 
                     contours.at<unsigned short>(landmarkCount, 0) = id;
                     contours.at<unsigned short>(landmarkCount, 1) = c1;
@@ -97,7 +97,7 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
         int j = 1;
         do {
             char *name = new char[directory.size() + 100];
-            sprintf(name, "%s/%02d-%dm", directory.c_str(), i, j);
+            sprintf_s(name, directory.size() + 100, "%s/%02d-%dm", directory.c_str(), i, j);
             std::string fileNameImg = std::string(name) + ".jpg";
             std::string fileNamePts = std::string(name) + ".asf";
             cv::Mat img = cv::imread(fileNameImg, 0);
@@ -121,7 +121,7 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
     } while (ok);
 
     // assemble the complete shape matrix from all training shapes that are given as row vectors
-    trainingSet.shapes = cv::Mat((int)shapeVecs.size(), shapeVecs[0].cols, CV_64F);
+    trainingSet.shapes = cv::Mat((int)shapeVecs.size(), shapeVecs[0].cols, CV_MAKETYPE(cv::DataType<aam::Scalar>::depth, 1));
     for (size_t i = 0; i < shapeVecs.size(); i++) {
         shapeVecs[i].copyTo(trainingSet.shapes.rowRange(i, i + 1));
     }
