@@ -25,11 +25,24 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace aam {
 
-    /** Rasterize shape on image plane */
+    /** Rasterize shape.
+     
+        These method rasterizes the given triangle topology and produces a 
+        sparse set of rasterized points represented as bary centric coordinates
+        plus associated triangle id.
+     
+        \param normalizedShape List of normalized points in interleaved format x0, y0, x1, y1, ...
+        \param triangleIds List of triangle vertices in triplets.
+        \param imageWidth Width of image
+        \param imageHeight Height of image
+        \param shapeScale scaling to be applied to normalizedShape.
+     
+     */
     MatrixX rasterizeShape(
-        Eigen::Ref<const RowVectorX> points, 
+        Eigen::Ref<const RowVectorX> normalizedShape,
         Eigen::Ref<const RowVectorXi> triangleIds,
-        MatrixX::Index imageWidth, MatrixX::Index imageHeight, Scalar pixelSize = Scalar(1));
+        MatrixX::Index imageWidth, MatrixX::Index imageHeight,
+        Scalar shapeScale);
 
 }
 

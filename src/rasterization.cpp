@@ -30,9 +30,9 @@ namespace aam {
     MatrixX rasterizeShape(
         Eigen::Ref<const RowVectorX> pointsInterleaved,
         Eigen::Ref<const RowVectorXi> triangleIds,
-        MatrixX::Index imageWidth, MatrixX::Index imageHeight, Scalar pixelSize)
+        MatrixX::Index imageWidth, MatrixX::Index imageHeight, Scalar shapeScale)
     {
-        MatrixX points = fromInterleaved<Scalar>(pointsInterleaved);
+        MatrixX points = fromInterleaved<Scalar>(pointsInterleaved) * shapeScale;
         MatrixX::Index nTriangles = triangleIds.size() / 3;
 
         std::vector<RowVector3> coords;
@@ -46,7 +46,7 @@ namespace aam {
 
             for (MatrixX::Index y = 0; y < imageHeight; ++y) {
                 for (MatrixX::Index x = 0; x < imageWidth; ++x) {
-                    RowVector2 p((x + Scalar(0.5))*pixelSize, (y + Scalar(0.5))*pixelSize);
+                    RowVector2 p((x + Scalar(0.5)), (y + Scalar(0.5)));
                     RowVector2 bary = pt.baryAt(p);
 
                     if (pt.isBaryInside(bary)) {

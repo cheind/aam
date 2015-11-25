@@ -44,7 +44,7 @@ TEST_CASE("rasterization")
     REQUIRE(pt.pointAt(r.rightCols(2).row(2)).isApprox(aam::RowVector2(2.5f, 2.5f)));
     REQUIRE((r.leftCols(0).array() == aam::Scalar(0)).all());
 
-    r = aam::rasterizeShape(points, triangleIds, 2, 2, 2);
+    r = aam::rasterizeShape(points, triangleIds, 2, 2, .5f);
     REQUIRE(r.rows() == 3);
     REQUIRE(r.cols() == 3);
 
