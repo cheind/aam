@@ -41,7 +41,7 @@ bool compareForMatricesForEquality(const cv::Mat m, const EigenMatrix &b)
     return true;
 }
 
-void funcTakingMatrixRef(Eigen::Ref<aam::MatrixX> r) {
+void funcTakingMatrixRef(aam::AamMatrixTraits<aam::Scalar>::MatrixRefType r) {
     r.setZero();
 }
 
@@ -50,14 +50,14 @@ TEST_CASE("map-header-only")
     aam::MatrixX mEigen = aam::MatrixX::Random(8, 6);
 
     // Map to OpenCV
-    cv::Mat_<float> mOpenCVMapped = aam::toOpenCVHeader(mEigen);
+    cv::Mat_<float> mOpenCVMapped = aam::toOpenCVHeader<float>(mEigen);
     REQUIRE(compareForMatricesForEquality(mOpenCVMapped, mEigen));
 
     // Create non-contingous view of mat
     cv::Mat roi = mOpenCVMapped(cv::Rect(1, 1, 2, 2));
 
     // Map non-contingous back to eigen
-    aam::MapMatrixX roiMapped = aam::toEigenHeader(roi);
+    aam::MapMatrixX roiMapped = aam::toEigenHeader<float>(roi);
     REQUIRE(compareForMatricesForEquality(roi, roiMapped));
 
     // Try with image data, 3 channels
@@ -84,7 +84,7 @@ TEST_CASE("map-header-only")
     // Regression compile issue #1 was caused by having a different stride on Map and Ref.
     cv::Mat m(1,1, CV_32FC1);
     m.setTo(255);
-    funcTakingMatrixRef(aam::toEigenHeader(m));
+    funcTakingMatrixRef(aam::toEigenHeader<float>(m));
     REQUIRE(cv::countNonZero(m) == 0);
    
 }

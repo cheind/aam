@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     aam::TrainingSet trainingSet;
     aam::loadAsfTrainingSet(argv[1], trainingSet);
     
-    aam::generalizedProcrustes(aam::toEigenHeader(trainingSet.shapes), 1);
+    aam::generalizedProcrustes(aam::toEigenHeader<aam::Scalar>(trainingSet.shapes), 1);
 
     // calculate PCA on shape data
     cv::Mat mean;

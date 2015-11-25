@@ -21,39 +21,36 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AAM_TYPES_H
 #define AAM_TYPES_H
 
+#include <aam/traits.h>
 #include <Eigen/Core>
 #include <opencv2/core/core.hpp>
 #include <vector>
 
 namespace aam {
-
-    /** Type traits for mapping matrices */
-    template<class Scalar>
-    struct EigenMatrixMapTraits {
-        typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
-        typedef Eigen::Map< MatrixType, 0, Eigen::Stride<Eigen::Dynamic, 1> > MapType;
-    };
-    
+   
     /** Precision */
     typedef float Scalar;
     
     /** Generic MxN matrix set to storage order compatible with OpenCV matrices. */
-    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixX;
+    typedef AamMatrixTraits<Scalar>::MatrixType MatrixX;
 
     /** Mapped MxN matrix with external storage. */
-    typedef EigenMatrixMapTraits<Scalar>::MapType MapMatrixX;
+    typedef AamMatrixTraits<Scalar>::MatrixMapType MapMatrixX;
 
     /** Generic 2x2 matrix set to storage order compatible with OpenCV matrices. */
-    typedef Eigen::Matrix<Scalar, 2, 2, Eigen::RowMajor> Matrix2;
+    typedef AamMatrixTraits<Scalar, 2, 2>::MatrixType Matrix2;
     
     /** Generic 1xM row vector. */
-    typedef Eigen::Matrix<Scalar, 1, Eigen::Dynamic> RowVectorX;
+    typedef AamMatrixTraits<Scalar, 1, Eigen::Dynamic>::MatrixType RowVectorX;
+
+    /** Generic 1xM row vector of integer. */
+    typedef AamMatrixTraits<int, 1, Eigen::Dynamic>::MatrixType RowVectorXi;
 
     /** Generic 1x2 row vector. */
-    typedef Eigen::Matrix<Scalar, 1, 2> RowVector2;
+    typedef AamMatrixTraits<Scalar, 1, 2>::MatrixType RowVector2;
 
     /** Generic 1x3 row vector. */
-    typedef Eigen::Matrix<Scalar, 1, 3> RowVector3;
+    typedef AamMatrixTraits<Scalar, 1, 3>::MatrixType RowVector3;
 
 
     struct TrainingSet {

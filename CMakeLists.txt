@@ -17,7 +17,8 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${OpenCV_INCLUDE_DIRS} ${EIGEN_I
 
 add_library(aam
     inc/aam/fwd.h
-    inc/aam/types.h
+    inc/aam/traits.h
+	inc/aam/types.h	
 	inc/aam/map.h
 	inc/aam/pca.h
 	inc/aam/aam.h
@@ -25,10 +26,12 @@ add_library(aam
 	inc/aam/show.h
 	inc/aam/procrustes.h
 	inc/aam/barycentrics.h
+	inc/aam/delaunay.h
 	src/pca.cpp	
 	src/io.cpp
 	src/show.cpp
 	src/procrustes.cpp
+	src/delaunay.cpp
 )
 	
 target_link_libraries(aam ${OpenCV_LIBRARIES})
