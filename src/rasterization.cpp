@@ -66,4 +66,49 @@ namespace aam {
         
     }
     
+    void generateImageFromRasterizedPositions(Eigen::Ref<const RowVectorX> normalizedShape,
+                           Eigen::Ref<const RowVectorXi> triangleIds,
+                           Eigen::Ref<const MatrixX> barycentricSamplePositions,
+                           Eigen::Ref<const MatrixX> colorsAtSamplePositions,
+                           Eigen::Ref<const RowVectorX> backgroundColor,
+                           Scalar shapeScale,
+                           Eigen::Ref<MatrixX> image)
+    {
+        const MatrixX::Index nChannels = backgroundColor.cols();
+        const MatrixX::Index width = image.cols() / nChannels;
+        const MatrixX::Index height = image.rows();
+        
+        // Fill with background
+        for(MatrixX::Index y = 0; y < image.rows(); ++y) {
+            auto r = image.row(y);
+            for (MatrixX::Index x = 0; x < image.cols() / nChannels; ++x) {
+                r.segment(x*nChannels, nChannels) = backgroundColor;
+            }
+        }
+        
+        // Loop over sample positions and write colors
+        MatrixX points = fromInterleaved<Scalar>(normalizedShape) * shapeScale;
+        
+        int triIdLast = -1;
+        ParametrizedTriangle pt;
+        for (MatrixX::Index i = 0; i < barycentricSamplePositions.rows(); ++i) {
+            auto rb = barycentricSamplePositions.row(i);
+            
+            
+            int triId = (int)rb(0);
+            if (triId != triIdLast) {
+                pt.updateVertices(points.row(triangleIds(triId*3)), points.row(triangleIds(triId*3 + 1)), points.row(triangleIds(triId*3 + 2)));
+                triIdLast = triId;
+            }
+            
+            auto p = pt.pointAt(rb.rightCols(2));
+            auto pi = (p - RowVector2::Constant(Scalar(0.5))).cast<MatrixX::Index>();
+            
+            if ((pi.array() >= 0).all() && pi(0) < width && pi(1) < height) {
+                auto c = colorsAtSamplePositions.row(i);
+                image.block<1, Eigen::Dynamic>(pi(1), pi(0) * nChannels, 1, nChannels) = c;
+            }
+        }
+    }
+    
 }

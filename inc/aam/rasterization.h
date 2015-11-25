@@ -36,14 +36,34 @@ namespace aam {
         \param imageWidth Width of image
         \param imageHeight Height of image
         \param shapeScale scaling to be applied to normalizedShape.
+        \return Nx3 matrix containing a triplet of triangleId, alpha, beta per row.
+     */
+    MatrixX rasterizeShape(Eigen::Ref<const RowVectorX> normalizedShape,
+                           Eigen::Ref<const RowVectorXi> triangleIds,
+                           MatrixX::Index imageWidth, MatrixX::Index imageHeight,
+                           Scalar shapeScale);
+
+    /** Generate image from shape and sparse set of rasterization positions.
+     
+        \param normalizedShape List of normalized points in interleaved format x0, y0, x1, y1, ...
+        \param triangleIds List of triangle vertices in triplets.
+        \param barycentricSamplePositions Nx3 matrix containing triplets of triangleId, alpha, beta per row.
+        \param colorsAtSamplePositions NxM matrix of color values per sample position. The number of channels in resulting
+               image is M.
+        \param backgroundColor 1xM row vector containing the background color of the image.
+        \param image Output image matrix, pre-allocated.
+        \param shapeScale scaling to be applied to normalizedShape.
      
      */
-    MatrixX rasterizeShape(
-        Eigen::Ref<const RowVectorX> normalizedShape,
-        Eigen::Ref<const RowVectorXi> triangleIds,
-        MatrixX::Index imageWidth, MatrixX::Index imageHeight,
-        Scalar shapeScale);
-
+    void generateImageFromRasterizedPositions(Eigen::Ref<const RowVectorX> normalizedShape,
+                           Eigen::Ref<const RowVectorXi> triangleIds,
+                           Eigen::Ref<const MatrixX> barycentricSamplePositions,
+                           Eigen::Ref<const MatrixX> colorsAtSamplePositions,
+                           Eigen::Ref<const RowVectorX> backgroundColor,
+                           Scalar shapeScale,
+                           Eigen::Ref<MatrixX> image);
+    
+    
 }
 
 #endif

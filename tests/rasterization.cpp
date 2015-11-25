@@ -43,7 +43,7 @@ TEST_CASE("rasterization")
     REQUIRE(pt.pointAt(r.rightCols(2).row(1)).isApprox(aam::RowVector2(2.5f, 1.5f)));
     REQUIRE(pt.pointAt(r.rightCols(2).row(2)).isApprox(aam::RowVector2(2.5f, 2.5f)));
     REQUIRE((r.leftCols(0).array() == aam::Scalar(0)).all());
-
+	
     r = aam::rasterizeShape(points, triangleIds, 2, 2, .5f);
     REQUIRE(r.rows() == 3);
     REQUIRE(r.cols() == 3);
@@ -51,4 +51,63 @@ TEST_CASE("rasterization")
     REQUIRE(pt.pointAt(r.rightCols(2).row(0)).isApprox(aam::RowVector2(1.f, 1.f)));
     REQUIRE(pt.pointAt(r.rightCols(2).row(1)).isApprox(aam::RowVector2(3.f, 1.f)));
     REQUIRE(pt.pointAt(r.rightCols(2).row(2)).isApprox(aam::RowVector2(3.f, 3.f)));
+}
+
+TEST_CASE("generate-image")
+{
+    aam::MatrixX points(1, 3 * 2);
+    points << 1.f, 1.f, 3.f, 1.f, 3.f, 3.f;
+    
+    aam::RowVectorXi triangleIds(3);
+    triangleIds << 0, 1, 2;
+    
+    aam::MatrixX r = aam::rasterizeShape(points, triangleIds, 4, 4, 1);
+    
+    {
+        // Single channel test
+        
+        aam::MatrixX colors(r.rows(), 1);
+        colors.fill(255.f);
+        
+        aam::RowVectorX bg(1);
+        bg << 0;
+        
+        aam::MatrixX grey(4,4);
+        aam::generateImageFromRasterizedPositions(points, triangleIds, r, colors, bg, 1, grey);
+        
+        aam::MatrixX shouldBe(4,4);
+        shouldBe << 0, 0, 0, 0,
+        0, 255, 255, 0,
+        0, 0, 255, 0,
+        0, 0, 0, 0;
+        
+        REQUIRE(grey.isApprox(shouldBe));
+    }
+    
+    {
+        // Multi channel test
+        
+        aam::MatrixX colors(r.rows(), 3);
+        colors.col(0).fill(255);
+        colors.col(1).fill(127);
+        colors.col(2).fill(63);
+        
+        aam::RowVectorX bg(3);
+        bg << 0, 0, 0;
+        
+        aam::MatrixX img(4, 4 * 3);
+        aam::generateImageFromRasterizedPositions(points, triangleIds, r, colors, bg, 1, img);
+        
+        std::cout << img << std::endl;
+        
+        aam::MatrixX shouldBe(4, 4 * 3);
+        shouldBe <<  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+                     0,   0,   0, 255, 127,  63, 255, 127,  63,   0,   0,   0,
+                     0,   0,   0,   0,   0,   0, 255, 127,  63,   0,   0,   0,
+                     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0;
+        
+        REQUIRE(img.isApprox(shouldBe));
+
+    }
+
 }
