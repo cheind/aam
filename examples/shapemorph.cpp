@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 
     // calculate PCA on shape data
     cv::Mat mean;
-    cv::PCA pca(trainingSet.shapes, mean, 0, 0.1);
+    cv::PCA pca(trainingSet.shapes, mean, 0, 0.001);
     cv::Mat vecs = pca.eigenvectors;
     cv::Mat vals = pca.eigenvalues;
     mean = pca.mean;
@@ -55,13 +55,18 @@ int main(int argc, char **argv)
     int counter = 0;
     while (key != 27) {
         dispImg = cv::Scalar(0);
-        double w0 = sin((double)counter / 20.0);
-        double w1 = sin((double)counter / 24.0);
+        // limit variation of parameters to 3 * sqrt(lambda_i) 
+        // (see also: 
+        //  An Introduction to Active Shape Models, Tim Cootes, 2000 
+        // second but last paragraph on page 6, 
+        // link to PDF: http://www.ee.oulu.fi/research/imag/courses/Kokkinos/asm_overview.pdf)
+        double w0 = sin((double)counter / 20.0) * 3 * sqrt(vals.at<aam::Scalar>(0, 0));
+        double w1 = sin((double)counter / 24.0) * 3 * sqrt(vals.at<aam::Scalar>(1, 0));
         //cv::Mat s = trainingSet.shapes.rowRange(0, 1) * w0 + trainingSet.shapes.rowRange(5, 6) * w1;
 
         cv::Mat s = mean + w0 * vecs.rowRange(0, 1) + w1 * vecs.rowRange(1, 2);
 
-        aam::drawShape(dispImg, s, cv::Scalar::all(255), trainingSet.contour);
+        aam::drawShapeLandmarks(dispImg, s, cv::Scalar::all(255));
         cv::imshow("img", dispImg);
         std::cout << "w = " << w0 << std::endl;
         key = cv::waitKey(10);
