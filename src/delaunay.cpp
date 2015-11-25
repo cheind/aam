@@ -35,7 +35,12 @@ namespace aam {
         RowVector2 minC = points.colwise().minCoeff();
         RowVector2 maxC = points.colwise().maxCoeff();
 
-        cv::Rect_<float> bounds(std::floor(minC.x()), std::floor(minC.y()), std::ceil(maxC.x() - minC.x()), std::ceil(maxC.y() - minC.y()));
+        // Don't make the bounds too tight.
+        cv::Rect_<float> bounds(
+            std::floor(minC.x() - aam::Scalar(1)), 
+            std::floor(minC.y() - aam::Scalar(1)), 
+            std::ceil(maxC.x() - minC.x() + aam::Scalar(2)), 
+            std::ceil(maxC.y() - minC.y() + aam::Scalar(2)));
 
         cv::Subdiv2D subdiv(bounds);
 

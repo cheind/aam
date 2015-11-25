@@ -55,5 +55,6 @@ add_executable(tests
 	tests/procrustes.cpp
 	tests/map.cpp
 	tests/barycentrics.cpp
+	tests/delaunay.cpp
 )
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})

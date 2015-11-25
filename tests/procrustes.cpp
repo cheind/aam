@@ -96,9 +96,9 @@ TEST_CASE("generalized-procrustes2") {
     cv::Mat shapes = aam::toOpenCVHeader<aam::Scalar>(X);
     cv::Mat img(480, 640, CV_8UC3);
     img.setTo(0);
-    aam::drawShape(img, shapes.row(0), cv::Scalar(255, 0, 0));
-    aam::drawShape(img, shapes.row(1), cv::Scalar(0, 255, 0));
-    aam::drawShape(img, shapes.row(2), cv::Scalar(0, 0, 255));
+    aam::drawShapeLandmarks(img, shapes.row(0), cv::Scalar(255, 0, 0));
+    aam::drawShapeLandmarks(img, shapes.row(1), cv::Scalar(0, 255, 0));
+    aam::drawShapeLandmarks(img, shapes.row(2), cv::Scalar(0, 0, 255));
     cv::imshow("shapes before", img);
 #endif
     
@@ -113,9 +113,9 @@ TEST_CASE("generalized-procrustes2") {
 #ifdef AAM_TESTS_VERBOSE
     cv::Mat img2(480, 640, CV_8UC3);
     img2.setTo(0);
-    aam::drawShape(img2, shapes.row(0), cv::Scalar(255, 0, 0));
-    aam::drawShape(img2, shapes.row(1), cv::Scalar(0, 255, 0));
-    aam::drawShape(img2, shapes.row(2), cv::Scalar(0, 0, 255));
+    aam::drawShapeLandmarks(img2, shapes.row(0), cv::Scalar(255, 0, 0));
+    aam::drawShapeLandmarks(img2, shapes.row(1), cv::Scalar(0, 255, 0));
+    aam::drawShapeLandmarks(img2, shapes.row(2), cv::Scalar(0, 0, 255));
     cv::imshow("shapes after", img2);
     cv::waitKey();
 #endif
