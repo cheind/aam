@@ -27,11 +27,13 @@ add_library(aam
 	inc/aam/procrustes.h
 	inc/aam/barycentrics.h
 	inc/aam/delaunay.h
+	inc/aam/rasterization.h
 	src/pca.cpp	
 	src/io.cpp
 	src/show.cpp
 	src/procrustes.cpp
 	src/delaunay.cpp
+	src/rasterization.cpp
 )
 	
 target_link_libraries(aam ${OpenCV_LIBRARIES})
@@ -56,5 +58,6 @@ add_executable(tests
 	tests/map.cpp
 	tests/barycentrics.cpp
 	tests/delaunay.cpp
+	tests/rasterization.cpp
 )
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})
