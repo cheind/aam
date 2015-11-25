@@ -18,16 +18,8 @@ You should have received a copy of the GNU General Public License
 along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AAM_FWD_H
-#define AAM_FWD_H
 
-#include <vector>
-#include <iosfwd>
+#include <aam/model.h>
 
 namespace aam {
-    struct TrainingSet;
-    class ParametrizedTriangle;
-    class ActiveAppearanceModel;
 }
-
-#endif

@@ -60,13 +60,6 @@ namespace aam {
         cv::Mat contour;  // optional: contours defined on the object (this data is just for visualization, not needed for actual AAM)
     };
 
-    struct ActiveAppearanceModel {
-        //mean
-        //eigenVectors
-        //eigenvalues
-        cv::Mat1i triangleIndices;  // Nx3 Matrix of landmark points connectivity (i.e. triangles from Delaunay triangulation)
-    };
-
 }
 
 #endif

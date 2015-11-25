@@ -28,12 +28,14 @@ add_library(aam
 	inc/aam/barycentrics.h
 	inc/aam/delaunay.h
 	inc/aam/rasterization.h
+	inc/aam/model.h
 	src/pca.cpp	
 	src/io.cpp
 	src/show.cpp
 	src/procrustes.cpp
 	src/delaunay.cpp
 	src/rasterization.cpp
+	src/model.cpp
 )
 	
 target_link_libraries(aam ${OpenCV_LIBRARIES})
