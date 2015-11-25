@@ -1,0 +1,35 @@
+
+TrainingSet;
+Trainer;
+ActiveAppearanceModel;
+
+TrainingSet tset;
+ASFImporter::load("path", tset);
+
+Trainer trainer;
+ActiveAppearanceModel m = trainer.train(trainset);
+
+m.save(); // Flatbuffers
+m.load();
+
+Tracker t;
+t.setModel(m);
+error = t.fit(img, sim, linearWeightsShape, linearWeightsAppearance);
+
+s = m.shape(sim, linearWeightsShape); // s in image coordinates
+m.draw(img, s);
+
+--------------------------------------
+
+struct ActiveAppearanceModel {
+	RowVector shapeMean; // normalized shape normalized 
+	Matrix shapeModes;   // reduced set of PCA eigenvectors
+	[float shapeScaleToTrainingData;] // maybe only in trainer
+	
+	RowVector triangleIds;
+	Martix barycentricSamplePositions; // pro texel : idx triangle, alpha, beta based on rasterization of shapeMean on specific resolution (trainingssetresolution)
+	
+	RowVector appearanceMean; // unit of intensity values
+	Matrix appearanceModes;
+};
+
