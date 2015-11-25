@@ -55,9 +55,9 @@ namespace aam {
     {
         typedef typename AamMatrixTraits<Scalar>::MatrixType ReturnType;            
 
-        const ReturnType::Index nRowsInput = ibased.rows();
-        const ReturnType::Index nRowsOutput = ibased.cols() / dims;
-        const ReturnType::Index nColsOutput = nRowsInput * dims;
+        const typename ReturnType::Index nRowsInput = ibased.rows();
+        const typename ReturnType::Index nRowsOutput = ibased.cols() / dims;
+        const typename ReturnType::Index nColsOutput = nRowsInput * dims;
 
         ReturnType r(nRowsOutput, nColsOutput);
         
@@ -82,18 +82,18 @@ namespace aam {
     {
         typedef typename AamMatrixTraits<Scalar>::MatrixType ReturnType;
 
-        const ReturnType::Index nObjects = rbased.cols() / dims;
-        const ReturnType::Index nRowsOutput = nObjects;
-        const ReturnType::Index nColsOutput = rbased.rows() * dims;
+        const typename ReturnType::Index nObjects = rbased.cols() / dims;
+        const typename ReturnType::Index nRowsOutput = nObjects;
+        const typename ReturnType::Index nColsOutput = rbased.rows() * dims;
 
         ReturnType r(nRowsOutput, nColsOutput);
 
-        for (ReturnType::Index y = 0; y < nObjects; ++y) {
+        for (typename ReturnType::Index y = 0; y < nObjects; ++y) {
 
             auto rowOutput = r.row(y);
             auto blockInput = rbased.block(0, y * dims, rbased.rows(), dims);
 
-            for (ReturnType::Index x = 0; x < blockInput.rows(); ++x) {
+            for (typename ReturnType::Index x = 0; x < blockInput.rows(); ++x) {
                 rowOutput.segment(x * dims, dims) = blockInput.row(x);
             }
         }
