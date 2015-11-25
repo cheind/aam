@@ -20,6 +20,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <aam/procrustes.h>
+#include <aam/map.h>
 #include <Eigen/Dense>
 #include <iostream>
 
@@ -74,24 +75,9 @@ namespace aam {
 
     Scalar generalizedProcrustes(Eigen::Ref<MatrixX> X, int maxIterations)
     {
-        // Reformat X so that each shape takes up two colums for x and y measurements.
-        const MatrixX::Index nShapes = X.rows();
-        const MatrixX::Index nRows = X.cols() / 2;
-        const MatrixX::Index nCols = nShapes * 2;
-        
-        MatrixX shapes(nRows, nCols);
-
-        for (int y = 0; y < nShapes; ++y) {
-
-            auto rowX = X.row(y);
-            auto shape = shapes.block<Eigen::Dynamic, 2>(0, y * 2, nRows, 2);
-
-            for (int x = 0, r = 0; x < X.cols(); x += 2, ++r) {
-                shape(r, 0) = rowX(x);
-                shape(r, 1) = rowX(x + 1);
-            }
-
-        }
+        MatrixX shapes = fromInterleaved<Scalar>(X);        
+        MatrixX::Index nShapes = X.rows();
+        MatrixX::Index rowsPerShape = shapes.rows();
 
         // Perform iterative optimization
         // - arbitrarily choose a reference shape(typically by selecting it among the available instances)
@@ -100,17 +86,17 @@ namespace aam {
         // - if the Procrustes distance between mean and reference shape is above a threshold, set reference to mean shape and continue to step 2.
         
         bool done = false;
-        MatrixX refShape = shapes.block<Eigen::Dynamic, 2>(0, 0, nRows, 2);
+        MatrixX refShape = shapes.block<Eigen::Dynamic, 2>(0, 0, rowsPerShape, 2);
         Scalar lastDist = std::numeric_limits<Scalar>::max();
         int iterations = 0;
         do {
             for (MatrixX::Index s = 0; s < nShapes; ++s) {
-                procrustes(refShape, shapes.block<Eigen::Dynamic, 2>(0, s * 2, nRows, 2));
+                procrustes(refShape, shapes.block<Eigen::Dynamic, 2>(0, s * 2, rowsPerShape, 2));
             }
 
-            MatrixX meanShape = MatrixX::Zero(nRows, 2);
+            MatrixX meanShape = MatrixX::Zero(rowsPerShape, 2);
             for (MatrixX::Index s = 0; s < nShapes; ++s) {
-                meanShape += shapes.block<Eigen::Dynamic, 2>(0, s * 2, nRows, 2);
+                meanShape += shapes.block<Eigen::Dynamic, 2>(0, s * 2, rowsPerShape, 2);
             }
             meanShape /= (Scalar)nShapes;
 
@@ -125,17 +111,8 @@ namespace aam {
         }  while (!done);
 
         // Write back as interleaved
-        for (int y = 0; y < nShapes; ++y) {
+        X = toInterleaved<Scalar>(shapes);
 
-            auto rowX = X.row(y);
-            auto shape = shapes.block<Eigen::Dynamic, 2>(0, y * 2, nRows, 2);
-
-            for (int x = 0, r = 0; x < X.cols(); x += 2, ++r) {
-                rowX(x) = shape(r, 0);
-                rowX(x + 1) = shape(r, 1);                 
-            }
-        }
-        
         return lastDist;
     }
 }

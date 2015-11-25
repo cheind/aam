@@ -93,7 +93,7 @@ TEST_CASE("generalized-procrustes2") {
 #pragma warning (pop)
 
 #ifdef AAM_TESTS_VERBOSE
-    cv::Mat shapes = aam::toOpenCVHeader(X);
+    cv::Mat shapes = aam::toOpenCVHeader<aam::Scalar>(X);
     cv::Mat img(480, 640, CV_8UC3);
     img.setTo(0);
     aam::drawShape(img, shapes.row(0), cv::Scalar(255, 0, 0));

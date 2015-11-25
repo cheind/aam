@@ -48,6 +48,58 @@ namespace aam {
 
         return typename AamMatrixTraits<Scalar>::MatrixMapType(m1.ptr<Scalar>(), m1.rows, m1.cols, Eigen::Stride < Eigen::Dynamic, 1>(outerStride, 1));
     }
+
+    /** Convert from interleaved representation to row style */
+    template<class Scalar>
+    inline typename AamMatrixTraits<Scalar>::MatrixType fromInterleaved(typename AamMatrixTraits<Scalar>::ConstMatrixRefType ibased, int dims = 2)
+    {
+        typedef typename AamMatrixTraits<Scalar>::MatrixType ReturnType;            
+
+        const ReturnType::Index nRowsInput = ibased.rows();
+        const ReturnType::Index nRowsOutput = ibased.cols() / dims;
+        const ReturnType::Index nColsOutput = nRowsInput * dims;
+
+        ReturnType r(nRowsOutput, nColsOutput);
+        
+        for (int y = 0; y < nRowsInput; ++y) {
+
+            auto irow = ibased.row(y);
+            auto block = r.block(0, y * dims, nRowsOutput, dims);
+
+            for (int x = 0; x < nRowsOutput; ++x) {
+                block.row(x) = irow.segment(x * dims, dims);
+            }
+
+        }
+
+        return r;
+
+    }
+
+    /** Convert from per-row to interleaved */
+    template<class Scalar>
+    inline typename AamMatrixTraits<Scalar>::MatrixType toInterleaved(typename AamMatrixTraits<Scalar>::ConstMatrixRefType rbased, int dims = 2)
+    {
+        typedef typename AamMatrixTraits<Scalar>::MatrixType ReturnType;
+
+        const ReturnType::Index nObjects = rbased.cols() / dims;
+        const ReturnType::Index nRowsOutput = nObjects;
+        const ReturnType::Index nColsOutput = rbased.rows() * dims;
+
+        ReturnType r(nRowsOutput, nColsOutput);
+
+        for (ReturnType::Index y = 0; y < nObjects; ++y) {
+
+            auto rowOutput = r.row(y);
+            auto blockInput = rbased.block(0, y * dims, rbased.rows(), dims);
+
+            for (ReturnType::Index x = 0; x < blockInput.rows(); ++x) {
+                rowOutput.segment(x * dims, dims) = blockInput.row(x);
+            }
+        }
+
+        return r;
+    }
 }
 
 #endif
