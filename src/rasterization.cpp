@@ -73,12 +73,10 @@ namespace aam {
         Eigen::Ref<const MatrixX> barycentricSamplePositions,
         Scalar shapeScale,
         cv::InputArray colorsAtSamplePositions_,
-        cv::Scalar backgroundColor,
         cv::InputOutputArray dst_)
     {
         cv::Mat colors = colorsAtSamplePositions_.getMat();
         cv::Mat dst = dst_.getMat();
-        dst.setTo(backgroundColor);
         
         // Loop over sample positions and write colors
         MatrixX points = fromInterleaved<Scalar>(normalizedShape) * shapeScale;

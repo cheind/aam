@@ -48,20 +48,17 @@ namespace aam {
      
         \param normalizedShape List of normalized points in interleaved format x0, y0, x1, y1, ...
         \param triangleIds List of triangle vertices in triplets.
-        \param barycentricSamplePositions Nx3 matrix containing triplets of triangleId, alpha, beta per row.
-        \param colorsAtSamplePositions NxM matrix of color values per sample position. The number of channels in resulting
-               image is M.
-        \param backgroundColor 1xM row vector containing the background color of the image.
-        \param image Output image matrix, pre-allocated.
+        \param barycentricSamplePositions Nx3 matrix containing sample position stored as triplets of triangleId, alpha, beta per row.
+        \param colorsAtSamplePositions Pre-allocated colors per sample position stored as image of size Nx1 with either 1 or 3 channels. 
         \param shapeScale scaling to be applied to normalizedShape.
+        \param image Pre-allocated output image        
      */
     void writeShapeImage(
         Eigen::Ref<const RowVectorX> normalizedShape,
         Eigen::Ref<const RowVectorXi> triangleIds,        
         Eigen::Ref<const MatrixX> barycentricSamplePositions,
         Scalar shapeScale,
-        cv::InputArray colorsAtSamplePositions,
-        cv::Scalar backgroundColor,        
+        cv::InputArray colorsAtSamplePositions,      
         cv::InputOutputArray dst);
     
     

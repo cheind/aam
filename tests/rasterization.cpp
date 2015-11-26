@@ -72,7 +72,8 @@ TEST_CASE("write-image")
         cv::Scalar bg(0);
         
         cv::Mat img(4, 4, CV_32FC1);
-        aam::writeShapeImage(points, triangleIds, r, 1, colors, bg, img);
+        img.setTo(0);
+        aam::writeShapeImage(points, triangleIds, r, 1, colors, img);
         
         aam::MatrixX shouldBe(4,4);
         shouldBe << 0, 0, 0, 0,
@@ -91,7 +92,8 @@ TEST_CASE("write-image")
         cv::Scalar bg(0);
         
         cv::Mat img(4, 4, CV_32FC3);
-        aam::writeShapeImage(points, triangleIds, r, 1, colors, bg, img);
+        img.setTo(0);
+        aam::writeShapeImage(points, triangleIds, r, 1, colors, img);
         
         aam::MatrixX shouldBe(4, 4 * 3);
         shouldBe <<  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
