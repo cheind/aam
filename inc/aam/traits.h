@@ -30,6 +30,7 @@ namespace aam {
     struct AamMatrixTraits {
         typedef Eigen::Matrix<Scalar, rows, cols, Eigen::RowMajor> MatrixType;
         typedef Eigen::Map<MatrixType, 0, Eigen::Stride<Eigen::Dynamic, 1> > MatrixMapType;
+        typedef Eigen::Map<MatrixType const , 0, Eigen::Stride<Eigen::Dynamic, 1> > ConstMatrixMapType;
         typedef Eigen::Ref<MatrixType> MatrixRefType;
         typedef Eigen::Ref<MatrixType const> ConstMatrixRefType;
     };

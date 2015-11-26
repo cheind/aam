@@ -20,6 +20,47 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <aam/model.h>
+#include <aam/io/serialization.h>
+#include <fstream>
 
 namespace aam {
+
+    bool ActiveAppearanceModel::save(const char *path) const
+    {
+        flatbuffers::FlatBufferBuilder fbb;
+        flatbuffers::Offset<aam::io::ActiveAppearanceModel> oroot = aam::io::toFlatbuffers(fbb, *this);
+        fbb.Finish(oroot);
+
+        FILE *f = fopen(path, "wb");
+        if (f == 0)
+            return false;
+
+        size_t written = fwrite(fbb.GetBufferPointer(), 1, fbb.GetSize(), f);
+
+        fclose(f);
+
+        return written == fbb.GetSize();        
+    }
+
+    
+    bool ActiveAppearanceModel::load(const char *path)
+    {
+        FILE *f = fopen(path, "rb");
+        if (f == 0)
+            return false;
+
+        fseek(f, 0, SEEK_END);
+        long fsize = ftell(f);
+        fseek(f, 0, SEEK_SET);
+
+        char *buffer = new char[fsize + 1];
+        size_t read = fread(buffer, fsize, 1, f);        
+        fclose(f);
+
+        const aam::io::ActiveAppearanceModel *am = aam::io::GetActiveAppearanceModel(buffer);
+        aam::io::fromFlatbuffers(*am, *this);
+
+        return true;
+    }
+
 }

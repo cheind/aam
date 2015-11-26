@@ -92,7 +92,12 @@ namespace aam {
                 lambda0, lambda1, lambda2, ...
         */
         RowVectorX appearanceModeWeights;
+
+        /** Save model to file */
+        bool save(const char *path) const;
         
+        /** Load model from file */
+        bool load(const char *path);
     };
    
 }

@@ -4,7 +4,7 @@ project(aam)
 
 if (WIN32)
 	#set(OpenCV_STATIC true)
-	add_definitions("-D_SCL_SECURE_NO_WARNINGS")
+	add_definitions("-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS")
 endif()
 
 set(EIGEN_INCLUDE_DIR "../eigen" CACHE PATH "Where is the include directory of Eigen located")
@@ -14,7 +14,6 @@ find_package(OpenCV REQUIRED)
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${OpenCV_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIR} "inc")
 
 # Library
-
 add_library(aam
     inc/aam/fwd.h
     inc/aam/traits.h
@@ -31,6 +30,8 @@ add_library(aam
 	inc/aam/bilinear.h
 	inc/aam/model.h
 	inc/aam/trainer.h
+	inc/aam/io/serialization.h
+	inc/aam/io/aam_generated.h
 	src/pca.cpp	
 	src/io.cpp
 	src/show.cpp
@@ -39,6 +40,7 @@ add_library(aam
 	src/rasterization.cpp
 	src/model.cpp
 	src/trainer.cpp
+	src/io/serialization.cpp
 )
 	
 target_link_libraries(aam ${OpenCV_LIBRARIES})
@@ -68,5 +70,6 @@ add_executable(tests
 	tests/delaunay.cpp
 	tests/rasterization.cpp
 	tests/bilinear.cpp
+	tests/serialization.cpp
 )
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})

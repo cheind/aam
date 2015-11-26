@@ -1,0 +1,59 @@
+/*
+This file is part of Active Appearance Models (AAM).
+
+Copyright Christoph Heindl 2015
+Copyright Sebastian Zambal 2015
+
+AAM is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AAM is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AAM.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*
+	Flatbuffer schema file for AAM
+	Generate with flatc -c --no-prefix aam.fbs
+*/
+
+namespace aam.io;
+
+/** Serialized NxM double valued matrix. 
+
+	Always saved in double format independent
+	of chosen aam::Scalar type.	
+*/
+table MatrixX {	
+	rows:int;
+	cols:int;
+	data:[double];
+}
+
+/** Serialized NxM integer valued matrix. */
+table MatrixXi {	
+	rows:int;
+	cols:int;
+	data:[int];
+}
+
+/** Serialized Active Appearance Model */
+table ActiveAppearanceModel {	
+	shapeMean:MatrixX;
+	shapeModes:MatrixX;
+	shapeModeWeights:MatrixX;
+	shapeScaleToTrainingSize:double;
+	triangleIndices:MatrixXi;
+	barycentricSamplePositions:MatrixX;
+	appearanceMean:MatrixX;
+	appearanceModes:MatrixX;
+	appearanceModeWeights:MatrixX;
+}
+
+root_type ActiveAppearanceModel;
