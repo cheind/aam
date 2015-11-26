@@ -10,7 +10,7 @@ Implementation is based on [1].
 **Active Appearance Models** requires the following pre-requisites
  - [CMake](www.cmake.org) - for generating cross platform build files
  - [OpenCV](www.opencv.org) - for image processing related functions
- - [Eigen](eigen.tuxfamily.org/) - for sparse linear system solving
+ - [Eigen 3.2.7](eigen.tuxfamily.org/) - for sparse linear system solving 
  
 To build from source
  - Point CMake to the cloned git repository
