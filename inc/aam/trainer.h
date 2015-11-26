@@ -21,18 +21,13 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AAM_TRAINER_H
 #define AAM_TRAINER_H
 
+#include <aam/fwd.h>
 #include <aam/types.h>
-#include <aam/model.h>
 
 namespace aam {
    
     /** class for training an AAM */
     class Trainer {
-
-    private:
-        /** the training data from which the trainer builds the AAM */
-        TrainingSet currentTrainingSet;
-
     public:
         /** Constructor */
         Trainer(const TrainingSet& trainingSet);
@@ -42,6 +37,13 @@ namespace aam {
 
         static void createTriangulation(TrainingSet& trainingSet);
 
+    private:
+        /** Normalize shape to unit size and move to origin */
+        void normalizeShape(Eigen::Ref<MatrixX> shape, Eigen::Ref<RowVectorX> weights, Scalar& scaling);
+
+
+        /** the training data from which the trainer builds the AAM */
+        TrainingSet _ts;
     };
 
 }

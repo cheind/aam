@@ -20,6 +20,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <aam/trainer.h>
+#include <aam/model.h>
 #include <aam/delaunay.h>
 #include <aam/procrustes.h>
 #include <aam/pca.h>
@@ -28,20 +29,35 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace aam {
     
-    Trainer::Trainer(const TrainingSet& trainingSet) {
-        currentTrainingSet = trainingSet;
-    }
+    Trainer::Trainer(const TrainingSet& trainingSet) 
+        :_ts(trainingSet)
+    {}
 
     /** shift centroid to origin and scale to 0/1 */
     void normalizeShape(Eigen::Ref<MatrixX> shape, Eigen::Ref<RowVectorX> weights, Scalar& scaling) {
-        //for (int i = 0; i < shape.)
+        // Convert points from interleaved to x,y per row.
+        MatrixX points = fromInterleaved<Scalar>(shape);
+
+        // Center data
+        RowVector2 mean = points.colwise().mean();
+        points.rowwise() -= mean;
+
+        // Scale to unit
+        RowVector2 minC = points.colwise().minCoeff();
+        RowVector2 maxC = points.colwise().maxCoeff();
+        RowVector2 dia = maxC - minC;
+        scaling = dia.maxCoeff();
+        points *= Scalar(1) / scaling;
+        weights *= Scalar(1) / scaling;
+
+        shape = toInterleaved<Scalar>(points);
     }
 
     void Trainer::train(ActiveAppearanceModel& model) {
 
-        aam::Scalar distance = aam::generalizedProcrustes(aam::toEigenHeader<aam::Scalar>(currentTrainingSet.shapes), 10);
+        aam::Scalar distance = aam::generalizedProcrustes(aam::toEigenHeader<aam::Scalar>(_ts.shapes), 10);
 
-        aam::computePCA(aam::toEigenHeader<aam::Scalar>(currentTrainingSet.shapes), model.shapeMean, model.shapeModes, model.shapeModeWeights);
+        aam::computePCA(aam::toEigenHeader<aam::Scalar>(_ts.shapes), model.shapeMean, model.shapeModes, model.shapeModeWeights);
 
         // shape auf 0/1 normalisieren
         normalizeShape(model.shapeMean, model.shapeModeWeights, model.shapeScaleToTrainingSize);

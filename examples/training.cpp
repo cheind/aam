@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     aam::loadAsfTrainingSet(argv[1], trainingSet);
 
     aam::Trainer trainer(trainingSet);
-    trainer.train();
+    //trainer.train();
 
 
     //aam::showTrainingSet(trainingSet);
