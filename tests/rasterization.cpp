@@ -21,6 +21,7 @@ along with AMM.  If not, see <http://www.gnu.org/licenses/>.
 #include "catch.hpp"
 #include <aam/rasterization.h>
 #include <aam/barycentrics.h>
+#include <aam/map.h>
 #include <iostream>
 
 TEST_CASE("rasterization")
@@ -53,7 +54,7 @@ TEST_CASE("rasterization")
     REQUIRE(pt.pointAt(r.rightCols(2).row(2)).isApprox(aam::RowVector2(3.f, 3.f)));
 }
 
-TEST_CASE("generate-image")
+TEST_CASE("write-image")
 {
     aam::MatrixX points(1, 3 * 2);
     points << 1.f, 1.f, 3.f, 1.f, 3.f, 3.f;
@@ -65,15 +66,13 @@ TEST_CASE("generate-image")
     
     {
         // Single channel test
+        cv::Mat colors(r.rows(), 1, CV_32FC1);
+        colors.setTo(255);
+ 
+        cv::Scalar bg(0);
         
-        aam::MatrixX colors(r.rows(), 1);
-        colors.fill(255.f);
-        
-        aam::RowVectorX bg(1);
-        bg << 0;
-        
-        aam::MatrixX grey(4,4);
-        aam::generateImageFromRasterizedPositions(points, triangleIds, r, colors, bg, 1, grey);
+        cv::Mat img(4, 4, CV_32FC1);
+        aam::writeShapeImage(points, triangleIds, r, 1, colors, bg, img);
         
         aam::MatrixX shouldBe(4,4);
         shouldBe << 0, 0, 0, 0,
@@ -81,24 +80,18 @@ TEST_CASE("generate-image")
         0, 0, 255, 0,
         0, 0, 0, 0;
         
-        REQUIRE(grey.isApprox(shouldBe));
+        REQUIRE(aam::toEigenHeader<float>(img).isApprox(shouldBe));
     }
     
     {
         // Multi channel test
+        cv::Mat colors(r.rows(), 1, CV_32FC3);
+        colors.setTo(cv::Scalar(255, 127, 63));
         
-        aam::MatrixX colors(r.rows(), 3);
-        colors.col(0).fill(255);
-        colors.col(1).fill(127);
-        colors.col(2).fill(63);
+        cv::Scalar bg(0);
         
-        aam::RowVectorX bg(3);
-        bg << 0, 0, 0;
-        
-        aam::MatrixX img(4, 4 * 3);
-        aam::generateImageFromRasterizedPositions(points, triangleIds, r, colors, bg, 1, img);
-        
-        std::cout << img << std::endl;
+        cv::Mat img(4, 4, CV_32FC3);
+        aam::writeShapeImage(points, triangleIds, r, 1, colors, bg, img);
         
         aam::MatrixX shouldBe(4, 4 * 3);
         shouldBe <<  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
@@ -106,7 +99,7 @@ TEST_CASE("generate-image")
                      0,   0,   0,   0,   0,   0, 255, 127,  63,   0,   0,   0,
                      0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0;
         
-        REQUIRE(img.isApprox(shouldBe));
+        REQUIRE(aam::toEigenHeader<float>(img).isApprox(shouldBe));
 
     }
 

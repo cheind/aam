@@ -22,6 +22,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #define AAM_DELAUNAY_H
 
 #include <aam/types.h>
+#include <opencv2/core/core.hpp>
 
 namespace aam {
 
@@ -53,15 +54,15 @@ namespace aam {
         \param backgroundColor 1xM row vector containing the background color of the image.
         \param image Output image matrix, pre-allocated.
         \param shapeScale scaling to be applied to normalizedShape.
-     
      */
-    void generateImageFromRasterizedPositions(Eigen::Ref<const RowVectorX> normalizedShape,
-                           Eigen::Ref<const RowVectorXi> triangleIds,
-                           Eigen::Ref<const MatrixX> barycentricSamplePositions,
-                           Eigen::Ref<const MatrixX> colorsAtSamplePositions,
-                           Eigen::Ref<const RowVectorX> backgroundColor,
-                           Scalar shapeScale,
-                           Eigen::Ref<MatrixX> image);
+    void writeShapeImage(
+        Eigen::Ref<const RowVectorX> normalizedShape,
+        Eigen::Ref<const RowVectorXi> triangleIds,        
+        Eigen::Ref<const MatrixX> barycentricSamplePositions,
+        Scalar shapeScale,
+        cv::InputArray colorsAtSamplePositions,
+        cv::Scalar backgroundColor,        
+        cv::InputOutputArray dst);
     
     
 }

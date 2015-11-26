@@ -22,6 +22,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/rasterization.h>
 #include <aam/barycentrics.h>
 #include <aam/map.h>
+#include <opencv2/opencv.hpp>
 #include <iostream>
 
 namespace aam {
@@ -66,25 +67,18 @@ namespace aam {
         
     }
     
-    void generateImageFromRasterizedPositions(Eigen::Ref<const RowVectorX> normalizedShape,
-                           Eigen::Ref<const RowVectorXi> triangleIds,
-                           Eigen::Ref<const MatrixX> barycentricSamplePositions,
-                           Eigen::Ref<const MatrixX> colorsAtSamplePositions,
-                           Eigen::Ref<const RowVectorX> backgroundColor,
-                           Scalar shapeScale,
-                           Eigen::Ref<MatrixX> image)
+    void writeShapeImage(
+        Eigen::Ref<const RowVectorX> normalizedShape,
+        Eigen::Ref<const RowVectorXi> triangleIds,
+        Eigen::Ref<const MatrixX> barycentricSamplePositions,
+        Scalar shapeScale,
+        cv::InputArray colorsAtSamplePositions_,
+        cv::Scalar backgroundColor,
+        cv::InputOutputArray dst_)
     {
-        const MatrixX::Index nChannels = backgroundColor.cols();
-        const MatrixX::Index width = image.cols() / nChannels;
-        const MatrixX::Index height = image.rows();
-        
-        // Fill with background
-        for(MatrixX::Index y = 0; y < image.rows(); ++y) {
-            auto r = image.row(y);
-            for (MatrixX::Index x = 0; x < image.cols() / nChannels; ++x) {
-                r.segment(x*nChannels, nChannels) = backgroundColor;
-            }
-        }
+        cv::Mat colors = colorsAtSamplePositions_.getMat();
+        cv::Mat dst = dst_.getMat();
+        dst.setTo(backgroundColor);
         
         // Loop over sample positions and write colors
         MatrixX points = fromInterleaved<Scalar>(normalizedShape) * shapeScale;
@@ -93,8 +87,7 @@ namespace aam {
         ParametrizedTriangle pt;
         for (MatrixX::Index i = 0; i < barycentricSamplePositions.rows(); ++i) {
             auto rb = barycentricSamplePositions.row(i);
-            
-            
+
             int triId = (int)rb(0);
             if (triId != triIdLast) {
                 pt.updateVertices(points.row(triangleIds(triId*3)), points.row(triangleIds(triId*3 + 1)), points.row(triangleIds(triId*3 + 2)));
@@ -104,9 +97,9 @@ namespace aam {
             auto p = pt.pointAt(rb.rightCols(2));
             auto pi = (p - RowVector2::Constant(Scalar(0.5))).cast<MatrixX::Index>();
             
-            if ((pi.array() >= 0).all() && pi(0) < width && pi(1) < height) {
-                auto c = colorsAtSamplePositions.row(i);
-                image.block<1, Eigen::Dynamic>(pi(1), pi(0) * nChannels, 1, nChannels) = c;
+            if ((pi.array() >= 0).all() && pi(0) < dst.cols && pi(1) < dst.rows) {
+                cv::Scalar s = (&(IplImage)colors, i, 0);
+                cvSet2D(&(IplImage)dst, pi(1), pi(0), cvGet2D(&(IplImage)colors, i, 0));
             }
         }
     }
