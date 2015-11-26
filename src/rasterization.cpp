@@ -80,7 +80,7 @@ namespace aam {
         cv::Mat dst = dst_.getMat();
         
         // Loop over sample positions and write colors
-        MatrixX points = fromInterleaved<Scalar>(normalizedShape) * shapeScale;
+        RowVectorX points = normalizedShape * shapeScale;
         
         int triIdLast = -1;
         ParametrizedTriangle pt;
@@ -89,7 +89,10 @@ namespace aam {
 
             int triId = (int)rb(0);
             if (triId != triIdLast) {
-                pt.updateVertices(points.row(triangleIds(triId*3)), points.row(triangleIds(triId*3 + 1)), points.row(triangleIds(triId*3 + 2)));
+                pt.updateVertices(
+                    points.segment(2 * triangleIds(triId * 3 + 0), 2),
+                    points.segment(2 * triangleIds(triId * 3 + 1), 2),
+                    points.segment(2 * triangleIds(triId * 3 + 2), 2));                
                 triIdLast = triId;
             }
             
@@ -115,7 +118,7 @@ namespace aam {
         cv::Mat dst = dst_.getMat();
         cv::Mat img = img_.getMat();
 
-        MatrixX points = fromInterleaved<Scalar>(normalizedShape) * shapeScale;
+        RowVectorX points = normalizedShape * shapeScale;
 
         int triIdLast = -1;
         ParametrizedTriangle pt;
@@ -124,7 +127,10 @@ namespace aam {
 
             int triId = (int)rb(0);
             if (triId != triIdLast) {
-                pt.updateVertices(points.row(triangleIds(triId * 3)), points.row(triangleIds(triId * 3 + 1)), points.row(triangleIds(triId * 3 + 2)));
+                pt.updateVertices(
+                    points.segment(2 * triangleIds(triId * 3+0), 2),
+                    points.segment(2 * triangleIds(triId * 3+1), 2),
+                    points.segment(2 * triangleIds(triId * 3+2), 2));
                 triIdLast = triId;
             }
 
