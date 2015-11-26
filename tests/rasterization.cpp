@@ -102,7 +102,5 @@ TEST_CASE("write-image")
                      0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0;
         
         REQUIRE(aam::toEigenHeader<float>(img).isApprox(shouldBe));
-
     }
-
 }

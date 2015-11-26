@@ -22,6 +22,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/rasterization.h>
 #include <aam/barycentrics.h>
 #include <aam/map.h>
+#include <aam/bilinear.h>
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
@@ -96,9 +97,40 @@ namespace aam {
             auto pi = (p - RowVector2::Constant(Scalar(0.5))).cast<MatrixX::Index>();
             
             if ((pi.array() >= 0).all() && pi(0) < dst.cols && pi(1) < dst.rows) {
-                cv::Scalar s = (&(IplImage)colors, i, 0);
                 cvSet2D(&(IplImage)dst, pi(1), pi(0), cvGet2D(&(IplImage)colors, i, 0));
             }
+        }
+    }
+
+    void readShapeImage(
+        Eigen::Ref<const RowVectorX> normalizedShape,
+        Eigen::Ref<const RowVectorXi> triangleIds,
+        Eigen::Ref<const MatrixX> barycentricSamplePositions,
+        Scalar shapeScale,
+        cv::InputArray img_,
+        cv::InputOutputArray dst_)
+    {
+        dst_.create(barycentricSamplePositions.rows(), 1, img_.type());
+
+        cv::Mat dst = dst_.getMat();
+        cv::Mat img = img_.getMat();
+
+        MatrixX points = fromInterleaved<Scalar>(normalizedShape) * shapeScale;
+
+        int triIdLast = -1;
+        ParametrizedTriangle pt;
+        for (MatrixX::Index i = 0; i < barycentricSamplePositions.rows(); ++i) {
+            auto rb = barycentricSamplePositions.row(i);
+
+            int triId = (int)rb(0);
+            if (triId != triIdLast) {
+                pt.updateVertices(points.row(triangleIds(triId * 3)), points.row(triangleIds(triId * 3 + 1)), points.row(triangleIds(triId * 3 + 2)));
+                triIdLast = triId;
+            }
+
+            auto p = pt.pointAt(rb.rightCols(2));
+
+            cvSet2D(&(IplImage)dst, i, 0, bilinear(img, p(1), p(0)));
         }
     }
     

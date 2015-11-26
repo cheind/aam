@@ -28,6 +28,7 @@ add_library(aam
 	inc/aam/barycentrics.h
 	inc/aam/delaunay.h
 	inc/aam/rasterization.h
+	inc/aam/bilinear.h
 	inc/aam/model.h
 	src/pca.cpp	
 	src/io.cpp
@@ -61,5 +62,6 @@ add_executable(tests
 	tests/barycentrics.cpp
 	tests/delaunay.cpp
 	tests/rasterization.cpp
+	tests/bilinear.cpp
 )
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})
