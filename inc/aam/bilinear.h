@@ -43,14 +43,18 @@ namespace aam {
 
         Scalar a = x - (Scalar)ix;
         Scalar b = y - (Scalar)iy;
+        
+        IplImage iplimg = img;
 
-        const cv::Scalar f0 = (cv::Scalar)cvGet2D(&(IplImage)img, y0, x0);
-        const cv::Scalar f1 = (cv::Scalar)cvGet2D(&(IplImage)img, y0, x1);
-        const cv::Scalar f2 = (cv::Scalar)cvGet2D(&(IplImage)img, y1, x0);
-        const cv::Scalar f3 = (cv::Scalar)cvGet2D(&(IplImage)img, y1, x1);
-
-        return (f0 * (Scalar(1) - a) + f1 * a) * (Scalar(1) - b) +
-               (f2 * (Scalar(1) - a) + f3 * a) * b;
+        const cv::Scalar f0 = (cv::Scalar)cvGet2D(&iplimg, y0, x0);
+        const cv::Scalar f1 = (cv::Scalar)cvGet2D(&iplimg, y0, x1);
+        const cv::Scalar f2 = (cv::Scalar)cvGet2D(&iplimg, y1, x0);
+        const cv::Scalar f3 = (cv::Scalar)cvGet2D(&iplimg, y1, x1);
+        
+        const cv::Vec<double, 4> r = (f0 * (Scalar(1) - a) + f1 * a) * (Scalar(1) - b) +
+                                     (f2 * (Scalar(1) - a) + f3 * a) * b;
+        
+        return cv::Scalar(r[0], r[1], r[2], r[3]);
     }
 }
 

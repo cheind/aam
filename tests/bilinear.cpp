@@ -26,10 +26,11 @@ along with AMM.  If not, see <http://www.gnu.org/licenses/>.
 TEST_CASE("bilinear")
 {
     cv::Mat img(4, 4, CV_8UC4);
-    cvSet2D(&(IplImage)img, 0, 0, cv::Scalar(255, 0, 0, 0));
-    cvSet2D(&(IplImage)img, 0, 1, cv::Scalar(0, 255, 0, 0));
-    cvSet2D(&(IplImage)img, 1, 0, cv::Scalar(0, 0, 255, 0));
-    cvSet2D(&(IplImage)img, 1, 1, cv::Scalar(0, 0, 0, 255));
+    IplImage ipl = img;
+    cvSet2D(&ipl, 0, 0, cv::Scalar(255, 0, 0, 0));
+    cvSet2D(&ipl, 0, 1, cv::Scalar(0, 255, 0, 0));
+    cvSet2D(&ipl, 1, 0, cv::Scalar(0, 0, 255, 0));
+    cvSet2D(&ipl, 1, 1, cv::Scalar(0, 0, 0, 255));
 
     // Pixel centers
     REQUIRE(aam::bilinear(img, 0.5, 0.5) == cv::Scalar(255, 0, 0, 0));

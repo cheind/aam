@@ -79,6 +79,9 @@ namespace aam {
         cv::Mat colors = colorsAtSamplePositions_.getMat();
         cv::Mat dst = dst_.getMat();
         
+        IplImage colorsipl = colors;
+        IplImage dstipl = dst;
+        
         // Loop over sample positions and write colors
         RowVectorX points = normalizedShape * shapeScale;
         
@@ -100,7 +103,7 @@ namespace aam {
             auto pi = (p - RowVector2::Constant(Scalar(0.5))).cast<MatrixX::Index>();
             
             if ((pi.array() >= 0).all() && pi(0) < dst.cols && pi(1) < dst.rows) {
-                cvSet2D(&(IplImage)dst, pi(1), pi(0), cvGet2D(&(IplImage)colors, i, 0));
+                cvSet2D(&dstipl, pi(1), pi(0), cvGet2D(&colorsipl, i, 0));
             }
         }
     }
@@ -117,6 +120,8 @@ namespace aam {
 
         cv::Mat dst = dst_.getMat();
         cv::Mat img = img_.getMat();
+        
+        IplImage dstipl = dst;
 
         RowVectorX points = normalizedShape * shapeScale;
 
@@ -136,7 +141,7 @@ namespace aam {
 
             auto p = pt.pointAt(rb.rightCols(2));
 
-            cvSet2D(&(IplImage)dst, i, 0, bilinear(img, p(1), p(0)));
+            cvSet2D(&dstipl, i, 0, bilinear(img, p(1), p(0)));
         }
     }
     

@@ -34,7 +34,7 @@ namespace aam {
     {}
 
     /** shift centroid to origin and scale to 0/1 */
-    void normalizeShape(Eigen::Ref<MatrixX> shape, Eigen::Ref<RowVectorX> weights, Scalar& scaling) {
+    void Trainer::normalizeShape(Eigen::Ref<MatrixX> shape, Eigen::Ref<RowVectorX> weights, Scalar& scaling) const {
         // Convert points from interleaved to x,y per row.
         MatrixX points = fromInterleaved<Scalar>(shape);
 
