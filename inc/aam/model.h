@@ -43,6 +43,12 @@ namespace aam {
                 x0, y0, x1, y1, ...
          */
         MatrixX shapeModes;
+
+        /** Eigen values corresponding to shape modes
+            Format:
+                lambda0, lambda1, lambda2, ...
+         */
+        RowVectorX shapeModeWeights;
         
         /** Scale factor to be applied to normalized coordinates to bring
             coordinates back to training image size. 
@@ -73,13 +79,19 @@ namespace aam {
          */
         RowVectorX appearanceMean;
         
-        /** Most dominant shape modes (eigenvectors) in rows starting
+        /** Most dominant appearance modes (eigenvectors) in rows starting
             with the least significant mode.
             Format:
                 i0, i1, i2, ...
                 i0, i1, i2, ...
          */
         MatrixX appearanceModes;
+
+        /** Eigen values corresponding to appearance modes
+            Format:
+                lambda0, lambda1, lambda2, ...
+        */
+        RowVectorX appearanceModeWeights;
         
     };
    

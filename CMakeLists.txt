@@ -30,6 +30,7 @@ add_library(aam
 	inc/aam/rasterization.h
 	inc/aam/bilinear.h
 	inc/aam/model.h
+	inc/aam/trainer.h
 	src/pca.cpp	
 	src/io.cpp
 	src/show.cpp
@@ -37,6 +38,7 @@ add_library(aam
 	src/delaunay.cpp
 	src/rasterization.cpp
 	src/model.cpp
+	src/trainer.cpp
 )
 	
 target_link_libraries(aam ${OpenCV_LIBRARIES})
@@ -48,6 +50,9 @@ target_link_libraries(aam_shapemorph aam ${OpenCV_LIBRARIES})
 
 add_executable(aam_showtrainingdata examples/showtrainingdata.cpp)
 target_link_libraries(aam_showtrainingdata aam ${OpenCV_LIBRARIES})
+
+add_executable(aam_training examples/training.cpp)
+target_link_libraries(aam_training aam ${OpenCV_LIBRARIES})
 
 # Tests
 
