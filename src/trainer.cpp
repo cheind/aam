@@ -57,12 +57,10 @@ namespace aam {
 
     void Trainer::train(ActiveAppearanceModel& model) {
 
-        cv::Mat alignedShapes = _ts.shapes.clone();
-
-        Scalar distance = generalizedProcrustes(toEigenHeader<Scalar>(alignedShapes), 10);
+        aam::MatrixX alignedShapes = generalizedProcrustes(toEigenHeader<Scalar>(_ts.shapes), 10);
 
         computePCA(
-            toEigenHeader<aam::Scalar>(alignedShapes),
+            alignedShapes,
             model.shapeMean, 
             model.shapeModes,
             model.shapeModeWeights);
@@ -105,13 +103,18 @@ namespace aam {
 
     void Trainer::createTriangulation(TrainingSet& trainingSet) {
 
-        ActiveAppearanceModel model;
+        aam::MatrixX alignedShapes = generalizedProcrustes(toEigenHeader<Scalar>(trainingSet.shapes), 10);
 
-        aam::Scalar distance = aam::generalizedProcrustes(aam::toEigenHeader<aam::Scalar>(trainingSet.shapes), 10);
+        aam::RowVectorX mean;
+        aam::MatrixX modes;
+        aam::RowVectorX weights;
+        computePCA(
+            alignedShapes,
+            mean,
+            modes,
+            weights);
 
-        aam::computePCA(aam::toEigenHeader<aam::Scalar>(trainingSet.shapes), model.shapeMean, model.shapeModes, model.shapeModeWeights);
-
-        trainingSet.triangles = aam::findDelaunayTriangulation(model.shapeMean);
+        trainingSet.triangles = aam::findDelaunayTriangulation(mean);
     }
 
 }

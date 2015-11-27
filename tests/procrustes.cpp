@@ -24,6 +24,7 @@ along with AMM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/procrustes.h>
 #include <aam/show.h>
 #include <aam/map.h>
+#include <aam/views.h>
 #include <Eigen/Geometry>
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -44,7 +45,7 @@ TEST_CASE("procrustes")
     aam::MatrixX Y = (X.rowwise().homogeneous() * sim.matrix().transpose()).rowwise().hnormalized();
 
     REQUIRE(!X.isApprox(Y));
-    REQUIRE(aam::procrustes(X, Y) == Approx(0).epsilon(0.1));
+    REQUIRE(aam::procrustes(aam::toInterleavedView<aam::Scalar>(X), aam::toInterleavedView<aam::Scalar>(Y)) == Approx(0).epsilon(0.1));
     REQUIRE(X.isApprox(Y));
 }
 
@@ -76,9 +77,9 @@ TEST_CASE("generalized-procustes")
     }
 
 
-    aam::generalizedProcrustes(C, 10);
-    REQUIRE(C.row(0).isApprox(C.row(1)));
-    REQUIRE(C.row(0).isApprox(C.row(2)));
+    aam::MatrixX r = aam::generalizedProcrustes(C, 10);
+    REQUIRE(r.row(0).isApprox(r.row(1)));
+    REQUIRE(r.row(0).isApprox(r.row(2)));
 }
 
 TEST_CASE("generalized-procrustes2") {
@@ -103,19 +104,18 @@ TEST_CASE("generalized-procrustes2") {
 #endif
     
     aam::Scalar distBefore = (X.row(0) - X.row(1)).norm() + (X.row(0) - X.row(2)).norm() + (X.row(1) - X.row(2)).norm();
-    
-    aam::generalizedProcrustes(X, 10);
-    
-    aam::Scalar distAfter= (X.row(0) - X.row(1)).norm() + (X.row(0) - X.row(2)).norm() + (X.row(1) - X.row(2)).norm();
+    aam::MatrixX result = aam::generalizedProcrustes(X, 10);
+    aam::Scalar distAfter= (result.row(0) - result.row(1)).norm() + (result.row(0) - result.row(2)).norm() + (result.row(1) - result.row(2)).norm();
     
     REQUIRE(distAfter < distBefore);
     
 #ifdef AAM_TESTS_VERBOSE
     cv::Mat img2(480, 640, CV_8UC3);
+    cv::Mat alignedShapes = aam::toOpenCVHeader<aam::Scalar>(result);
     img2.setTo(0);
-    aam::drawShapeLandmarks(img2, shapes.row(0), cv::Scalar(255, 0, 0));
-    aam::drawShapeLandmarks(img2, shapes.row(1), cv::Scalar(0, 255, 0));
-    aam::drawShapeLandmarks(img2, shapes.row(2), cv::Scalar(0, 0, 255));
+    aam::drawShapeLandmarks(img2, alignedShapes.row(0), cv::Scalar(255, 0, 0));
+    aam::drawShapeLandmarks(img2, alignedShapes.row(1), cv::Scalar(0, 255, 0));
+    aam::drawShapeLandmarks(img2, alignedShapes.row(2), cv::Scalar(0, 0, 255));
     cv::imshow("shapes after", img2);
     cv::waitKey();
 #endif

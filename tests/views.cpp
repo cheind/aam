@@ -25,6 +25,20 @@ along with AMM.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 
+template<class Derived>
+void test(
+    const Eigen::MatrixBase<Derived> &m)
+{
+    std::cout << "a" << std::endl;
+}
+
+template<class Derived>
+void test(
+    Eigen::MatrixBase<Derived> &m)
+{
+    std::cout << "b" << std::endl;
+}
+
 TEST_CASE("views")
 {
     aam::MatrixX shapes(2, 4);
@@ -35,7 +49,9 @@ TEST_CASE("views")
     shapesSeparated << 1, 2, 5, 6,
                        3, 4, 7, 8;
 
-    
+
+    Eigen::Ref<aam::MatrixX> ref(shapes);
+
     REQUIRE(shapesSeparated.block(0, 0, 2, 2).isApprox(aam::toSeparatedView<aam::Scalar>(shapes.row(0))));
     REQUIRE(shapesSeparated.block(0, 2, 2, 2).isApprox(aam::toSeparatedView<aam::Scalar>(shapes.row(1))));
 

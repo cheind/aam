@@ -32,7 +32,7 @@ namespace aam {
         conform them to the points in matrix X, using the sum of squared errors
         as the goodness of fit criterion.
      
-        Based on
+        References:
         Stegmann, Mikkel B., and David Delgado Gomez. 
         "A brief introduction to statistical shape analysis." 
         Informatics and Mathematical Modelling, Technical University of Denmark, DTU 15 (2002): 11.
@@ -41,7 +41,7 @@ namespace aam {
         \param Y Nx2 Input shape consisting of N two-dimensional measurements. Modified in place.
         \return Normalized distance between X and transformed Y.
      */
-    Scalar procrustes(Eigen::Ref<const MatrixX> X, Eigen::Ref<MatrixX> Y);
+    Scalar procrustes(Eigen::Ref<const RowVectorX> X, Eigen::Ref<RowVectorX> Y);
 
     /** Compute Procrustes shape normalization of n-shapes.
 
@@ -60,7 +60,7 @@ namespace aam {
         \param maxIteraions Maximum number of iterations to perform normalization.
         \return Normalized distance between mean shape and reference shape in last iteration.
     */
-    Scalar generalizedProcrustes(Eigen::Ref<MatrixX> X, int maxIterations);
+    MatrixX generalizedProcrustes(Eigen::Ref<const MatrixX> X, int maxIterations);
 
 }
 
