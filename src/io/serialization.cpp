@@ -88,7 +88,7 @@ namespace aam {
             aamb.add_shapeMean(o1);
             aamb.add_shapeModes(o2);
             aamb.add_shapeModeWeights(o3);
-            aamb.add_shapeScaleToTrainingSize(m.shapeScaleToTrainingSize);
+            //aamb.add_shapeScaleToTrainingSize(m.shapeScaleToTrainingSize);
             aamb.add_triangleIndices(o4);
             aamb.add_barycentricSamplePositions(o5);
             aamb.add_appearanceMean(o6);
@@ -104,7 +104,7 @@ namespace aam {
             fromFlatbuffers(*m.shapeModes(), am.shapeModes);
             fromFlatbuffers(*m.shapeModeWeights(), am.shapeModeWeights);
 
-            am.shapeScaleToTrainingSize = aam::Scalar(m.shapeScaleToTrainingSize());
+            //am.shapeScaleToTrainingSize = aam::Scalar(m.shapeScaleToTrainingSize());
             
             fromFlatbuffers(*m.triangleIndices(), am.triangleIndices);
             fromFlatbuffers(*m.barycentricSamplePositions(), am.barycentricSamplePositions);

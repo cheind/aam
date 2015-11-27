@@ -50,10 +50,10 @@ namespace aam {
          */
         RowVectorX shapeModeWeights;
         
-        /** Scale factor to be applied to normalized coordinates to bring
-            coordinates back to training image size. 
+        /** Affine transform to be applied to normalized shape coordinates 
+            to bring coordinates back to training image size.
          */
-        Scalar shapeScaleToTrainingSize;
+        Affine2 shapeTransformToTrainingData;
         
         /** List of triangle indices referencing shape points. 
             Format:

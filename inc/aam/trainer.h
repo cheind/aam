@@ -39,7 +39,7 @@ namespace aam {
 
     private:
         /** Normalize shape to unit size and move to origin */
-        void normalizeShape(Eigen::Ref<RowVectorX> shape, Eigen::Ref<RowVectorX> weights, Scalar& scaling) const;
+        Affine2 normalizeShape(Eigen::Ref<RowVectorX> shape, Eigen::Ref<RowVectorX> weights) const;
 
 
         /** the training data from which the trainer builds the AAM */

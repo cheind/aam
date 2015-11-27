@@ -39,7 +39,7 @@ namespace aam {
     }
 
     /** shift centroid to origin and scale to 0/1 */
-    void Trainer::normalizeShape(Eigen::Ref<RowVectorX> shape, Eigen::Ref<RowVectorX> weights, Scalar& scaling) const {
+    Affine2 Trainer::normalizeShape(Eigen::Ref<RowVectorX> shape, Eigen::Ref<RowVectorX> weights) const {
         // Convert points from interleaved to x,y per row.
         auto points = toSeparatedView<Scalar>(shape);
 
@@ -51,9 +51,18 @@ namespace aam {
         RowVector2 minC = points.colwise().minCoeff();
         RowVector2 maxC = points.colwise().maxCoeff();
         RowVector2 dia = maxC - minC;
-        scaling = dia.maxCoeff();
+        Scalar scaling = dia.maxCoeff();
         points *= Scalar(1) / scaling;
         weights *= Scalar(1) / scaling;
+        
+        Affine2 t;
+        t.setZero();
+        
+        t(0,0) = t(1,1) = scaling;
+        t(2,0) = mean.x();
+        t(2,1) = mean.y();
+        
+        return t;
     }
 
     void Trainer::train(ActiveAppearanceModel& model) {
@@ -96,7 +105,7 @@ namespace aam {
             model.appearanceModeWeights);
 
         // shape auf 0/1 normalisieren
-        normalizeShape(model.shapeMean, model.shapeModeWeights, model.shapeScaleToTrainingSize);
+        model.shapeTransformToTrainingData = normalizeShape(model.shapeMean, model.shapeModeWeights);
 
     }
 

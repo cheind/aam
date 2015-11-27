@@ -39,7 +39,7 @@ TEST_CASE("serialize")
     am.shapeModes = m.topRows(4);
     am.shapeModeWeights = m.row(4);
     am.triangleIndices = tris;
-    am.shapeScaleToTrainingSize = 10;
+    //am.shapeScaleToTrainingSize = 10;
 
     am.save("aam.bin");
 
@@ -55,5 +55,5 @@ TEST_CASE("serialize")
     REQUIRE(am.shapeModes.isApprox(m.topRows(4)));
     REQUIRE(am.shapeModeWeights.isApprox(m.row(4)));
     REQUIRE(am.triangleIndices.isApprox(tris));
-    REQUIRE(am.shapeScaleToTrainingSize == 10);
+    //REQUIRE(am.shapeScaleToTrainingSize == 10);
 }
