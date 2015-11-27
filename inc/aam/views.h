@@ -30,28 +30,28 @@ namespace aam {
     inline typename AamMatrixTraits<Scalar>::MatrixMapType 
     toSeparatedView(typename AamMatrixTraits<Scalar, 1, Eigen::Dynamic>::MatrixRefType m, int dims = 2)
     {
-        return AamMatrixTraits<Scalar>::MatrixMapType(m.data(), m.cols() / dims, dims, Eigen::Stride<Eigen::Dynamic, 1>(dims, 1));
+        return typename AamMatrixTraits<Scalar>::MatrixMapType(m.data(), m.cols() / dims, dims, Eigen::Stride<Eigen::Dynamic, 1>(dims, 1));
     }
 
     template<class Scalar>
     inline typename AamMatrixTraits<Scalar>::ConstMatrixMapType
         toSeparatedViewConst(typename AamMatrixTraits<Scalar, 1, Eigen::Dynamic>::ConstMatrixRefType m, int dims = 2)
     {
-        return AamMatrixTraits<Scalar>::ConstMatrixMapType(m.data(), m.cols() / dims, dims, Eigen::Stride<Eigen::Dynamic, 1>(dims, 1));
+        return typename AamMatrixTraits<Scalar>::ConstMatrixMapType(m.data(), m.cols() / dims, dims, Eigen::Stride<Eigen::Dynamic, 1>(dims, 1));
     }
 
     template<class Scalar>
     inline typename AamMatrixTraits<Scalar, 1, Eigen::Dynamic>::MatrixMapType
         toInterleavedView(typename AamMatrixTraits<Scalar>::MatrixRefType m)
     {
-        return AamMatrixTraits<Scalar, 1, Eigen::Dynamic>::MatrixMapType(m.data(), 1, m.rows() * m.cols(), Eigen::Stride<Eigen::Dynamic, 1>(m.rows() * m.cols(), 1));
+        return typename AamMatrixTraits<Scalar, 1, Eigen::Dynamic>::MatrixMapType(m.data(), 1, m.rows() * m.cols(), Eigen::Stride<Eigen::Dynamic, 1>(m.rows() * m.cols(), 1));
     }
 
     template<class Scalar>
     inline typename AamMatrixTraits<Scalar, 1, Eigen::Dynamic>::ConstMatrixMapType
         toInterleavedViewConst(typename AamMatrixTraits<Scalar>::ConstMatrixRefType m)
     {
-        return AamMatrixTraits<Scalar, 1, Eigen::Dynamic>::ConstMatrixMapType(m.data(), 1, m.rows() * m.cols(), Eigen::Stride<Eigen::Dynamic, 1>(m.rows() * m.cols(), 1));
+        return typename AamMatrixTraits<Scalar, 1, Eigen::Dynamic>::ConstMatrixMapType(m.data(), 1, m.rows() * m.cols(), Eigen::Stride<Eigen::Dynamic, 1>(m.rows() * m.cols(), 1));
     }
 
 }

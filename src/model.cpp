@@ -54,7 +54,7 @@ namespace aam {
         fseek(f, 0, SEEK_SET);
 
         char *buffer = new char[fsize + 1];
-        size_t read = fread(buffer, fsize, 1, f);        
+        fread(buffer, fsize, 1, f);        
         fclose(f);
 
         const aam::io::ActiveAppearanceModel *am = aam::io::GetActiveAppearanceModel(buffer);
