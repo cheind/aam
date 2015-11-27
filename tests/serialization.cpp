@@ -25,6 +25,8 @@ along with AMM.  If not, see <http://www.gnu.org/licenses/>.
 TEST_CASE("serialize")
 {
     aam::MatrixX m = aam::MatrixX::Random(5, 10);
+    aam::Affine2 a;
+    a << 1, 2, 3, 4, 5, 6;
 
     aam::RowVectorXi tris(3);
     tris << 0, 1, 2;
@@ -39,7 +41,7 @@ TEST_CASE("serialize")
     am.shapeModes = m.topRows(4);
     am.shapeModeWeights = m.row(4);
     am.triangleIndices = tris;
-    //am.shapeScaleToTrainingSize = 10;
+    am.shapeTransformToTrainingData = a;
 
     am.save("aam.bin");
 
@@ -55,5 +57,5 @@ TEST_CASE("serialize")
     REQUIRE(am.shapeModes.isApprox(m.topRows(4)));
     REQUIRE(am.shapeModeWeights.isApprox(m.row(4)));
     REQUIRE(am.triangleIndices.isApprox(tris));
-    //REQUIRE(am.shapeScaleToTrainingSize == 10);
+    REQUIRE(am.shapeTransformToTrainingData.isApprox(a));
 }

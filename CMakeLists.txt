@@ -38,6 +38,7 @@ add_library(aam
     inc/aam/transform.h
 	inc/aam/io/serialization.h
 	inc/aam/io/aam_generated.h
+    inc/aam/io/aam.fbs
 	src/pca.cpp	
 	src/io.cpp
 	src/show.cpp

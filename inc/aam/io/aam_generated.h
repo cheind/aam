@@ -95,7 +95,7 @@ struct ActiveAppearanceModel FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tabl
   const MatrixX *shapeMean() const { return GetPointer<const MatrixX *>(4); }
   const MatrixX *shapeModes() const { return GetPointer<const MatrixX *>(6); }
   const MatrixX *shapeModeWeights() const { return GetPointer<const MatrixX *>(8); }
-  double shapeScaleToTrainingSize() const { return GetField<double>(10, 0); }
+  const MatrixX *shapeTransformToTrainingData() const { return GetPointer<const MatrixX *>(10); }
   const MatrixXi *triangleIndices() const { return GetPointer<const MatrixXi *>(12); }
   const MatrixX *barycentricSamplePositions() const { return GetPointer<const MatrixX *>(14); }
   const MatrixX *appearanceMean() const { return GetPointer<const MatrixX *>(16); }
@@ -109,7 +109,8 @@ struct ActiveAppearanceModel FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tabl
            verifier.VerifyTable(shapeModes()) &&
            VerifyField<flatbuffers::uoffset_t>(verifier, 8 /* shapeModeWeights */) &&
            verifier.VerifyTable(shapeModeWeights()) &&
-           VerifyField<double>(verifier, 10 /* shapeScaleToTrainingSize */) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, 10 /* shapeTransformToTrainingData */) &&
+           verifier.VerifyTable(shapeTransformToTrainingData()) &&
            VerifyField<flatbuffers::uoffset_t>(verifier, 12 /* triangleIndices */) &&
            verifier.VerifyTable(triangleIndices()) &&
            VerifyField<flatbuffers::uoffset_t>(verifier, 14 /* barycentricSamplePositions */) &&
@@ -130,7 +131,7 @@ struct ActiveAppearanceModelBuilder {
   void add_shapeMean(flatbuffers::Offset<MatrixX> shapeMean) { fbb_.AddOffset(4, shapeMean); }
   void add_shapeModes(flatbuffers::Offset<MatrixX> shapeModes) { fbb_.AddOffset(6, shapeModes); }
   void add_shapeModeWeights(flatbuffers::Offset<MatrixX> shapeModeWeights) { fbb_.AddOffset(8, shapeModeWeights); }
-  void add_shapeScaleToTrainingSize(double shapeScaleToTrainingSize) { fbb_.AddElement<double>(10, shapeScaleToTrainingSize, 0); }
+  void add_shapeTransformToTrainingData(flatbuffers::Offset<MatrixX> shapeTransformToTrainingData) { fbb_.AddOffset(10, shapeTransformToTrainingData); }
   void add_triangleIndices(flatbuffers::Offset<MatrixXi> triangleIndices) { fbb_.AddOffset(12, triangleIndices); }
   void add_barycentricSamplePositions(flatbuffers::Offset<MatrixX> barycentricSamplePositions) { fbb_.AddOffset(14, barycentricSamplePositions); }
   void add_appearanceMean(flatbuffers::Offset<MatrixX> appearanceMean) { fbb_.AddOffset(16, appearanceMean); }
@@ -148,19 +149,19 @@ inline flatbuffers::Offset<ActiveAppearanceModel> CreateActiveAppearanceModel(fl
    flatbuffers::Offset<MatrixX> shapeMean = 0,
    flatbuffers::Offset<MatrixX> shapeModes = 0,
    flatbuffers::Offset<MatrixX> shapeModeWeights = 0,
-   double shapeScaleToTrainingSize = 0,
+   flatbuffers::Offset<MatrixX> shapeTransformToTrainingData = 0,
    flatbuffers::Offset<MatrixXi> triangleIndices = 0,
    flatbuffers::Offset<MatrixX> barycentricSamplePositions = 0,
    flatbuffers::Offset<MatrixX> appearanceMean = 0,
    flatbuffers::Offset<MatrixX> appearanceModes = 0,
    flatbuffers::Offset<MatrixX> appearanceModeWeights = 0) {
   ActiveAppearanceModelBuilder builder_(_fbb);
-  builder_.add_shapeScaleToTrainingSize(shapeScaleToTrainingSize);
   builder_.add_appearanceModeWeights(appearanceModeWeights);
   builder_.add_appearanceModes(appearanceModes);
   builder_.add_appearanceMean(appearanceMean);
   builder_.add_barycentricSamplePositions(barycentricSamplePositions);
   builder_.add_triangleIndices(triangleIndices);
+  builder_.add_shapeTransformToTrainingData(shapeTransformToTrainingData);
   builder_.add_shapeModeWeights(shapeModeWeights);
   builder_.add_shapeModes(shapeModes);
   builder_.add_shapeMean(shapeMean);

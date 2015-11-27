@@ -29,22 +29,28 @@ namespace aam {
     namespace io {
 
         /** Serialize matrix to flatbuffers storage */
-        flatbuffers::Offset<::aam::io::MatrixX> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, Eigen::Ref<::aam::MatrixX const> m);
+        flatbuffers::Offset<::aam::io::MatrixX> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, const ::aam::MatrixX &m);
+        
+        /** Serialize matrix to flatbuffers storage */
+        flatbuffers::Offset<::aam::io::MatrixX> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, const ::aam::RowVectorX &m);
+        
+        /** Serialize matrix to flatbuffers storage */
+        flatbuffers::Offset<::aam::io::MatrixXi> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, const ::aam::RowVectorXi &m);
+        
+        /** Serialize ActiveAppearanceModel to flatbuffers storage */
+        flatbuffers::Offset<::aam::io::ActiveAppearanceModel> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, const ::aam::ActiveAppearanceModel &m);
 
         /** Serialize matrix from flatbuffers storage */
         void fromFlatbuffers(const ::aam::io::MatrixX &mfb, aam::MatrixX &m);
+        
+        /** Serialize matrix from flatbuffers storage */
+        void fromFlatbuffers(const ::aam::io::MatrixX &mfb, aam::Affine2 &m);
 
         /** Serialize matrix from flatbuffers storage */
         void fromFlatbuffers(const ::aam::io::MatrixX &mfb, aam::RowVectorX &m);
 
-        /** Serialize matrix to flatbuffers storage */
-        flatbuffers::Offset<::aam::io::MatrixXi> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, Eigen::Ref<::aam::RowVectorXi const> m);
-
         /** Serialize matrix from flatbuffers storage */
         void fromFlatbuffers(const ::aam::io::MatrixXi &mfb, ::aam::RowVectorXi &m);
-
-        /** Serialize ActiveAppearanceModel to flatbuffers storage */
-        flatbuffers::Offset<::aam::io::ActiveAppearanceModel> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, const ::aam::ActiveAppearanceModel &m);
 
         /** Serialize ActiveAppearanceModel from flatbuffers storage */
         void fromFlatbuffers(const ::aam::io::ActiveAppearanceModel &mfb, ::aam::ActiveAppearanceModel &m);

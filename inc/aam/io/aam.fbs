@@ -48,7 +48,7 @@ table ActiveAppearanceModel {
 	shapeMean:MatrixX;
 	shapeModes:MatrixX;
 	shapeModeWeights:MatrixX;
-	shapeScaleToTrainingSize:double;
+    shapeTransformToTrainingData:MatrixX;
 	triangleIndices:MatrixXi;
 	barycentricSamplePositions:MatrixX;
 	appearanceMean:MatrixX;

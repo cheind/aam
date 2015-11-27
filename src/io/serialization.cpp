@@ -27,7 +27,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 namespace aam {
     namespace io {
 
-        flatbuffers::Offset<::aam::io::MatrixX> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, Eigen::Ref<::aam::MatrixX const> m)
+        flatbuffers::Offset<::aam::io::MatrixX> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, const ::aam::MatrixX &m)
         {
             AamMatrixTraits<double>::MatrixType md = m.cast<double>();
             
@@ -41,20 +41,13 @@ namespace aam {
 
             return mb.Finish();            
         }
-
-        void fromFlatbuffers(const ::aam::io::MatrixX &mfb, aam::MatrixX &m)
-        {            
-            AamMatrixTraits<double>::ConstMatrixMapType mdmap(mfb.data()->data(), mfb.rows(), mfb.cols(), Eigen::Stride<Eigen::Dynamic, 1>(mfb.cols(), 1));
-            m = mdmap.cast<::aam::Scalar>();
-        }
-
-        void fromFlatbuffers(const ::aam::io::MatrixX &mfb, aam::RowVectorX &m)
+        
+        flatbuffers::Offset<::aam::io::MatrixX> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, const ::aam::RowVectorX &m)
         {
-            AamMatrixTraits<double>::ConstMatrixMapType mdmap(mfb.data()->data(), mfb.rows(), mfb.cols(), Eigen::Stride<Eigen::Dynamic, 1>(mfb.cols(), 1));
-            m = mdmap.cast<::aam::Scalar>().row(0);
+            return toFlatbuffers(fbb, (const ::aam::MatrixX &)m);
         }
 
-        flatbuffers::Offset<::aam::io::MatrixXi> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, Eigen::Ref<::aam::RowVectorXi const> m)
+        flatbuffers::Offset<::aam::io::MatrixXi> toFlatbuffers(flatbuffers::FlatBufferBuilder &fbb, const ::aam::RowVectorXi &m)
         {
             flatbuffers::Offset<flatbuffers::Vector<int> > od = fbb.CreateVector(m.array().data(), m.array().size());
 
@@ -65,11 +58,30 @@ namespace aam {
 
             return mb.Finish();
         }
+        
+        void fromFlatbuffers(const ::aam::io::MatrixX &mfb, aam::MatrixX &m)
+        {
+            AamMatrixTraits<double>::ConstMatrixMapType mdmap(mfb.data()->data(), mfb.rows(), mfb.cols(), Eigen::Stride<Eigen::Dynamic, 1>(mfb.cols(), 1));
+            m = mdmap.cast<::aam::Scalar>();
+        }
+        
+        void fromFlatbuffers(const ::aam::io::MatrixX &mfb, aam::RowVectorX &m)
+        {
+            AamMatrixTraits<double>::ConstMatrixMapType mdmap(mfb.data()->data(), mfb.rows(), mfb.cols(), Eigen::Stride<Eigen::Dynamic, 1>(mfb.cols(), 1));
+            m = mdmap.cast<::aam::Scalar>().row(0);
+        }
+
 
         void fromFlatbuffers(const ::aam::io::MatrixXi &mfb, ::aam::RowVectorXi &m)
         {
             AamMatrixTraits<int>::ConstMatrixMapType mdmap(mfb.data()->data(), mfb.rows(), mfb.cols(), Eigen::Stride<Eigen::Dynamic, 1>(mfb.cols(), 1));
             m = mdmap.row(0);
+        }
+        
+        void fromFlatbuffers(const ::aam::io::MatrixX &mfb, aam::Affine2 &m)
+        {
+            AamMatrixTraits<double>::ConstMatrixMapType mdmap(mfb.data()->data(), mfb.rows(), mfb.cols(), Eigen::Stride<Eigen::Dynamic, 1>(mfb.cols(), 1));
+            m = mdmap.cast<::aam::Scalar>();
         }
 
 
@@ -83,17 +95,18 @@ namespace aam {
             auto o6 = toFlatbuffers(fbb, m.appearanceMean);
             auto o7 = toFlatbuffers(fbb, m.appearanceModes);
             auto o8 = toFlatbuffers(fbb, m.appearanceModeWeights);
+            auto o9 = toFlatbuffers(fbb, (const ::aam::MatrixX &)m.shapeTransformToTrainingData);
             
             ActiveAppearanceModelBuilder aamb(fbb);
             aamb.add_shapeMean(o1);
             aamb.add_shapeModes(o2);
             aamb.add_shapeModeWeights(o3);
-            //aamb.add_shapeScaleToTrainingSize(m.shapeScaleToTrainingSize);
             aamb.add_triangleIndices(o4);
             aamb.add_barycentricSamplePositions(o5);
             aamb.add_appearanceMean(o6);
             aamb.add_appearanceModes(o7);
             aamb.add_appearanceModeWeights(o8);
+            aamb.add_shapeTransformToTrainingData(o9);
 
             return aamb.Finish();
         }
@@ -104,7 +117,7 @@ namespace aam {
             fromFlatbuffers(*m.shapeModes(), am.shapeModes);
             fromFlatbuffers(*m.shapeModeWeights(), am.shapeModeWeights);
 
-            //am.shapeScaleToTrainingSize = aam::Scalar(m.shapeScaleToTrainingSize());
+            fromFlatbuffers(*m.shapeTransformToTrainingData(), am.shapeTransformToTrainingData);
             
             fromFlatbuffers(*m.triangleIndices(), am.triangleIndices);
             fromFlatbuffers(*m.barycentricSamplePositions(), am.barycentricSamplePositions);
