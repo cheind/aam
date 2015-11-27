@@ -28,6 +28,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/map.h>
 #include <aam/views.h>
 #include <aam/trainingset.h>
+#include <iostream>
 
 namespace aam {
     
@@ -57,7 +58,7 @@ namespace aam {
 
     void Trainer::train(ActiveAppearanceModel& model) {
 
-        aam::MatrixX alignedShapes = generalizedProcrustes(toEigenHeader<Scalar>(_ts.shapes), 10);
+        aam::MatrixX alignedShapes = generalizedProcrustes(_ts.shapes, 10);
 
         computePCA(
             alignedShapes,
@@ -75,12 +76,12 @@ namespace aam {
 
         cv::Mat scalarImage;
         cv::Mat colorSamples;
-        MatrixX appearances(_ts.shapes.rows, model.barycentricSamplePositions.rows());
+        MatrixX appearances(_ts.shapes.rows(), model.barycentricSamplePositions.rows());
         for (size_t i = 0; i < _ts.images.size(); ++i) {            
             _ts.images[i].convertTo(scalarImage, cv::DataType<Scalar>::depth);
             
             readShapeImage(
-                toEigenHeader<Scalar>(_ts.shapes.row(i)), // Use orignal shapes here.
+                _ts.shapes.row(i), // Use orignal shapes here.
                 model.triangleIndices, 
                 model.barycentricSamplePositions, 
                 1, 
@@ -103,8 +104,8 @@ namespace aam {
 
     void Trainer::createTriangulation(TrainingSet& trainingSet) {
 
-        aam::MatrixX alignedShapes = generalizedProcrustes(toEigenHeader<Scalar>(trainingSet.shapes), 10);
-
+        aam::MatrixX alignedShapes = generalizedProcrustes(trainingSet.shapes, 10);
+        
         aam::RowVectorX mean;
         aam::MatrixX modes;
         aam::RowVectorX weights;

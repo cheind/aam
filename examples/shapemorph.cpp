@@ -40,11 +40,11 @@ int main(int argc, char **argv)
     aam::TrainingSet trainingSet;
     aam::loadAsfTrainingSet(argv[1], trainingSet);
     
-    aam::generalizedProcrustes(aam::toEigenHeader<aam::Scalar>(trainingSet.shapes), 1);
+    aam::generalizedProcrustes(trainingSet.shapes, 1);
 
     // calculate PCA on shape data
     cv::Mat mean;
-    cv::PCA pca(trainingSet.shapes, mean, 0, 0.001);
+    cv::PCA pca(aam::toOpenCVHeader<aam::Scalar>(trainingSet.shapes), mean, 0, 0.001);
     cv::Mat vecs = pca.eigenvectors;
     cv::Mat vals = pca.eigenvalues;
     mean = pca.mean;
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 
         cv::Mat s = mean + w0 * vecs.rowRange(0, 1) + w1 * vecs.rowRange(1, 2);
 
-        aam::drawShapeLandmarks(dispImg, s, cv::Scalar::all(255));
+        aam::drawShapeLandmarks(dispImg, aam::toEigenHeader<aam::Scalar>(s), cv::Scalar::all(255));
         cv::imshow("img", dispImg);
         std::cout << "w = " << w0 << std::endl;
         key = cv::waitKey(10);

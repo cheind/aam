@@ -27,50 +27,56 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 namespace aam {
-    void drawShapeLandmarks(cv::Mat& canvas, const cv::Mat& shape, const cv::Scalar &color) {
+    void drawShapeLandmarks(cv::Mat& canvas, Eigen::Ref<RowVectorX const> shape, const cv::Scalar &color) {
 
-        for (int j = 0; j < shape.cols / 2; j++) {
-            Scalar x = (shape.at<Scalar>(0, j * 2 + 0) * (Scalar)canvas.cols);
-            Scalar y = (shape.at<Scalar>(0, j * 2 + 1) * (Scalar)canvas.rows);
+        const auto &s = shape.cast<float>();
+        
+        for (int j = 0; j < s.cols() / 2; j++) {
+            float x = s(0, j * 2 + 0);
+            float y = s(0, j * 2 + 1);
             cv::circle(canvas, cv::Point2f(x, y), 2, color, 1, CV_AA);
         }
     }
 
     /** Draw shape contour */
-    void drawShapeContour(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& contourIds, const cv::Scalar &color)
+    void drawShapeContour(cv::Mat& canvas, Eigen::Ref<RowVectorX const> shape, const cv::Mat& contourIds, const cv::Scalar &color)
     {
-        for (int j = 0; j < shape.cols / 2; j++) {
-            Scalar x = (shape.at<Scalar>(0, j * 2 + 0) * (Scalar)canvas.cols);
-            Scalar y = (shape.at<Scalar>(0, j * 2 + 1) * (Scalar)canvas.rows);
+        const auto &s = shape.cast<float>();
+        
+        for (int j = 0; j < s.cols() / 2; j++) {
+            float x = s(0, j * 2 + 0);
+            float y = s(0, j * 2 + 1);
 
-            int c1 = contourIds.at<unsigned short>(j, 1);
-            int c2 = contourIds.at<unsigned short>(j, 2);
-            Scalar x1 = (shape.at<Scalar>(0, c1 * 2 + 0) * (Scalar)canvas.cols);
-            Scalar y1 = (shape.at<Scalar>(0, c1 * 2 + 1) * (Scalar)canvas.rows);
-            Scalar x2 = (shape.at<Scalar>(0, c2 * 2 + 0) * (Scalar)canvas.cols);
-            Scalar y2 = (shape.at<Scalar>(0, c2 * 2 + 1) * (Scalar)canvas.rows);
+            int c1 = contourIds.at<int>(j, 1);
+            int c2 = contourIds.at<int>(j, 2);
+            float x1 = s(0, c1 * 2 + 0);
+            float y1 = s(0, c1 * 2 + 1);
+            float x2 = s(0, c2 * 2 + 0);
+            float y2 = s(0, c2 * 2 + 1);
             cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x1, y1), color, 1, CV_AA);
             cv::line(canvas, cv::Point2f(x, y), cv::Point2f(x2, y2), color, 1, CV_AA);
         }
     }
 
     /** Draw shape triangles */
-    void drawShapeTriangulation(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& triangleIds, const cv::Scalar &color)
+    void drawShapeTriangulation(cv::Mat& canvas, Eigen::Ref<RowVectorX const> shape, Eigen::Ref<RowVectorXi const> triangleIds, const cv::Scalar &color)
     {
-        for (int j = 0; j < triangleIds.cols / 3; j++) {
+        const auto &s = shape.cast<float>();
+        
+        for (int j = 0; j < triangleIds.cols() / 3; j++) {
 
-            int id1 = triangleIds.at<int>(0, j * 3 + 0);
-            int id2 = triangleIds.at<int>(0, j * 3 + 1);
-            int id3 = triangleIds.at<int>(0, j * 3 + 2);
+            int id1 = triangleIds(0, j * 3 + 0);
+            int id2 = triangleIds(0, j * 3 + 1);
+            int id3 = triangleIds(0, j * 3 + 2);
 
-            Scalar x1 = (shape.at<Scalar>(0, id1 * 2 + 0) * (Scalar)canvas.cols);
-            Scalar y1 = (shape.at<Scalar>(0, id1 * 2 + 1) * (Scalar)canvas.rows);
+            float x1 = s(0, id1 * 2 + 0);
+            float y1 = s(0, id1 * 2 + 1);
 
-            Scalar x2 = (shape.at<Scalar>(0, id2 * 2 + 0) * (Scalar)canvas.cols);
-            Scalar y2 = (shape.at<Scalar>(0, id2 * 2 + 1) * (Scalar)canvas.rows);
+            float x2 = s(0, id2 * 2 + 0);
+            float y2 = s(0, id2 * 2 + 1);
 
-            Scalar x3 = (shape.at<Scalar>(0, id3 * 2 + 0) * (Scalar)canvas.cols);
-            Scalar y3 = (shape.at<Scalar>(0, id3 * 2 + 1) * (Scalar)canvas.rows);
+            float x3 = s(0, id3 * 2 + 0);
+            float y3 = s(0, id3 * 2 + 1);
 
             cv::line(canvas, cv::Point2f(x1, y1), cv::Point2f(x2, y2), color, 1, CV_AA);
             cv::line(canvas, cv::Point2f(x2, y2), cv::Point2f(x3, y3), color, 1, CV_AA);
@@ -80,17 +86,14 @@ namespace aam {
 
     void showTrainingSet(const aam::TrainingSet& trainingSet) {
 
-        aam::RowVectorXi triIds = aam::findDelaunayTriangulation(toEigenHeader<float>(trainingSet.shapes.rowRange(0, 1)));
-        cv::Mat triIdsCV = toOpenCVHeader<int>(triIds);
 
         for (int i = 0; i < (int)trainingSet.images.size(); i++) {
             cv::Mat dispImg;
             trainingSet.images[i].copyTo(dispImg);
-            drawShapeLandmarks(dispImg, trainingSet.shapes.rowRange(i, i + 1), cv::Scalar::all(255));
-            //if (!trainingSet.contour.empty())
-            //    drawShapeContour(dispImg, trainingSet.shapes.rowRange(i, i + 1), trainingSet.contour, cv::Scalar::all(255));
-            drawShapeTriangulation(dispImg, trainingSet.shapes.rowRange(i, i + 1), triIdsCV, cv::Scalar::all(255));
-            cv::imshow("img", dispImg);
+            drawShapeLandmarks(dispImg, trainingSet.shapes.row(i), cv::Scalar::all(255));
+            if (trainingSet.triangles.size() > 0)
+                drawShapeTriangulation(dispImg, trainingSet.shapes.row(i), trainingSet.triangles, cv::Scalar::all(255));
+            cv::imshow("Training Image", dispImg);
             cv::waitKey(0);
         }
     }

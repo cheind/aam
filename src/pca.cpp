@@ -21,10 +21,11 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <aam/pca.h>
 #include <Eigen/Dense>
+#include <iostream>
 
 namespace aam {
     
-    void computePCA(Eigen::Ref<const MatrixX> data, Eigen::Ref<RowVectorX> mean, Eigen::Ref<MatrixX> basis, Eigen::Ref<RowVectorX> weights)
+    void computePCA(Eigen::Ref<const MatrixX> data, RowVectorX &mean, MatrixX &basis, RowVectorX &weights)
     {
         mean = data.colwise().mean();
         MatrixX centered = data.rowwise() - mean;

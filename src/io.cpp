@@ -21,12 +21,13 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/io.h>
 #include <aam/types.h>
 #include <aam/trainingset.h>
+#include <aam/views.h>
 
 #include <iostream>
 #include <fstream>
 #include <opencv/highgui.h>
 
-bool parseAsfFile(const std::string& fileName, cv::Mat& coords, cv::Mat& contours) {
+bool parseAsfFile(const std::string& fileName, aam::RowVectorX &coords, cv::Mat& contours) {
 
     int landmarkCount = 0;
 
@@ -41,9 +42,8 @@ bool parseAsfFile(const std::string& fileName, cv::Mat& coords, cv::Mat& contour
                 }
                 else if (line.size() < 10) {
                     int nbPoints = atol(line.c_str());
-                    //std::cout << "number of landmark points in file: " << nbPoints << std::endl;
-                    coords = cv::Mat(1, nbPoints * 2, CV_MAKETYPE(cv::DataType<aam::Scalar>::depth, 1));
-                    contours = cv::Mat(nbPoints, 3, CV_16U);
+                    coords.resize(1, nbPoints * 2);
+                    contours = cv::Mat(nbPoints, 3, CV_32SC1);
                 }
                 else {
                     std::stringstream stream(line);
@@ -64,16 +64,17 @@ bool parseAsfFile(const std::string& fileName, cv::Mat& coords, cv::Mat& contour
 
                     aam::Scalar x = (aam::Scalar)atof(xStr.c_str());
                     aam::Scalar y = (aam::Scalar)atof(yStr.c_str());
+                    
                     int id = atoi(pointIdStr.c_str());
                     int c1 = atoi(conn1Str.c_str());
                     int c2 = atoi(conn2Str.c_str());
 
-                    coords.at<aam::Scalar>(0, landmarkCount * 2 + 0) = x;
-                    coords.at<aam::Scalar>(0, landmarkCount * 2 + 1) = y;
+                    coords(0, landmarkCount * 2 + 0) = x;
+                    coords(0, landmarkCount * 2 + 1) = y;
 
-                    contours.at<unsigned short>(landmarkCount, 0) = id;
-                    contours.at<unsigned short>(landmarkCount, 1) = c1;
-                    contours.at<unsigned short>(landmarkCount, 2) = c2;
+                    contours.at<int>(landmarkCount, 0) = id;
+                    contours.at<int>(landmarkCount, 1) = c1;
+                    contours.at<int>(landmarkCount, 2) = c2;
 
                     landmarkCount++;
                 }
@@ -87,7 +88,7 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
 
     trainingSet.images.clear();
 
-    std::vector<cv::Mat> shapeVecs;
+    std::vector<aam::RowVectorX> shapeVecs;
 
     cv::Mat contour;
     
@@ -105,11 +106,13 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
 #endif
             std::string fileNameImg = std::string(name) + ".jpg";
             std::string fileNamePts = std::string(name) + ".asf";
+            
             cv::Mat img = cv::imread(fileNameImg, 0);
             std::cout << "loading " << fileNameImg << ", " << fileNamePts << std::endl;
-            cv::Mat coords;
+            
+            aam::RowVectorX coords;
             parseAsfFile(fileNamePts, coords, contour);
-            if (coords.rows > 0) {
+            if (coords.cols() > 0) {
                 shapeVecs.push_back(coords);
                 trainingSet.images.push_back(img);
                 j++;
@@ -126,12 +129,14 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
     } while (ok);
 
     // assemble the complete shape matrix from all training shapes that are given as row vectors
-    trainingSet.shapes = cv::Mat((int)shapeVecs.size(), shapeVecs[0].cols, CV_MAKETYPE(cv::DataType<aam::Scalar>::depth, 1));
-    for (size_t i = 0; i < shapeVecs.size(); i++) {
-        shapeVecs[i].copyTo(trainingSet.shapes.rowRange(i, i + 1));
-    }
+        trainingSet.shapes.resize(shapeVecs.size(), shapeVecs[0].cols());
+        
+        for (size_t i = 0; i < shapeVecs.size(); ++i) {
+            aam::toSeparatedView<Scalar>(shapeVecs[i]).col(0) *= trainingSet.images[i].cols;
+            aam::toSeparatedView<Scalar>(shapeVecs[i]).col(1) *= trainingSet.images[i].rows;
+            trainingSet.shapes.row(i) = shapeVecs[i];
+        }
+        trainingSet.contour = contour;
 
-    trainingSet.contour = contour;
-
-    return true;
+    return ok;
 }

@@ -92,14 +92,24 @@ TEST_CASE("generalized-procrustes2") {
     
     X.row(2) << 0.42316, 0.63272, 0.43223, 0.67975, 0.44836, 0.73080, 0.48264, 0.78052, 0.52296, 0.81411, 0.55219, 0.82486, 0.57538, 0.83158, 0.60360, 0.82620, 0.63082, 0.81276, 0.66409, 0.77917, 0.68324, 0.74693, 0.70643, 0.69856, 0.72356, 0.62869, 0.67215, 0.49567, 0.65502, 0.47954, 0.63989, 0.47148, 0.62175, 0.47686, 0.60461, 0.48895, 0.62074, 0.49432, 0.63687, 0.49701, 0.65401, 0.49701, 0.47457, 0.49029, 0.48969, 0.47551, 0.50481, 0.46879, 0.51893, 0.47686, 0.53304, 0.48626, 0.51792, 0.49029, 0.50179, 0.49298, 0.48868, 0.49164, 0.60058, 0.44864, 0.61772, 0.42983, 0.64493, 0.42983, 0.67114, 0.43789, 0.69433, 0.47148, 0.54413, 0.44327, 0.52800, 0.42445, 0.49171, 0.42177, 0.46550, 0.42983, 0.45340, 0.45805, 0.51489, 0.66900, 0.55320, 0.65153, 0.57135, 0.65959, 0.58143, 0.65287, 0.62276, 0.67168, 0.59252, 0.69856, 0.56832, 0.71065, 0.54816, 0.69990, 0.55723, 0.49432, 0.55118, 0.55210, 0.53506, 0.56285, 0.53304, 0.59375, 0.54715, 0.60988, 0.57135, 0.61794, 0.59554, 0.60988, 0.61368, 0.59913, 0.60764, 0.56151, 0.59151, 0.54941, 0.58647, 0.49835;
 #pragma warning (pop)
+    
+    // Node, the above numbers are as reported in ASF files. We need to upscale them here
+    // to 640x480 for rendering purposes.
+    aam::toSeparatedView<aam::Scalar>(X.row(0)).col(0) *= aam::Scalar(640);
+    aam::toSeparatedView<aam::Scalar>(X.row(0)).col(1) *= aam::Scalar(480);
+    
+    aam::toSeparatedView<aam::Scalar>(X.row(1)).col(0) *= aam::Scalar(640);
+    aam::toSeparatedView<aam::Scalar>(X.row(1)).col(1) *= aam::Scalar(480);
+    
+    aam::toSeparatedView<aam::Scalar>(X.row(2)).col(0) *= aam::Scalar(640);
+    aam::toSeparatedView<aam::Scalar>(X.row(2)).col(1) *= aam::Scalar(480);
 
 #ifdef AAM_TESTS_VERBOSE
-    cv::Mat shapes = aam::toOpenCVHeader<aam::Scalar>(X);
     cv::Mat img(480, 640, CV_8UC3);
     img.setTo(0);
-    aam::drawShapeLandmarks(img, shapes.row(0), cv::Scalar(255, 0, 0));
-    aam::drawShapeLandmarks(img, shapes.row(1), cv::Scalar(0, 255, 0));
-    aam::drawShapeLandmarks(img, shapes.row(2), cv::Scalar(0, 0, 255));
+    aam::drawShapeLandmarks(img, X.row(0), cv::Scalar(255, 0, 0));
+    aam::drawShapeLandmarks(img, X.row(1), cv::Scalar(0, 255, 0));
+    aam::drawShapeLandmarks(img, X.row(2), cv::Scalar(0, 0, 255));
     cv::imshow("shapes before", img);
 #endif
     
@@ -111,11 +121,10 @@ TEST_CASE("generalized-procrustes2") {
     
 #ifdef AAM_TESTS_VERBOSE
     cv::Mat img2(480, 640, CV_8UC3);
-    cv::Mat alignedShapes = aam::toOpenCVHeader<aam::Scalar>(result);
     img2.setTo(0);
-    aam::drawShapeLandmarks(img2, alignedShapes.row(0), cv::Scalar(255, 0, 0));
-    aam::drawShapeLandmarks(img2, alignedShapes.row(1), cv::Scalar(0, 255, 0));
-    aam::drawShapeLandmarks(img2, alignedShapes.row(2), cv::Scalar(0, 0, 255));
+    aam::drawShapeLandmarks(img2, result.row(0), cv::Scalar(255, 0, 0));
+    aam::drawShapeLandmarks(img2, result.row(1), cv::Scalar(0, 255, 0));
+    aam::drawShapeLandmarks(img2, result.row(2), cv::Scalar(0, 0, 255));
     cv::imshow("shapes after", img2);
     cv::waitKey();
 #endif

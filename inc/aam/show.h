@@ -22,18 +22,19 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #define AAM_SHOW_H
 
 #include <aam/fwd.h>
+#include <aam/types.h>
 #include <opencv2/core/core.hpp>
 
 namespace aam {
     
     // for debugging draw a single shape on some image
-    void drawShapeLandmarks(cv::Mat& canvas, const cv::Mat& shape, const cv::Scalar &color);
+    void drawShapeLandmarks(cv::Mat& canvas, Eigen::Ref<RowVectorX const> shape, const cv::Scalar &color);
 
     /** Draw shape contour */
-    void drawShapeContour(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& contourIds, const cv::Scalar &color);
+    void drawShapeContour(cv::Mat& canvas, Eigen::Ref<RowVectorX const> shape, const cv::Mat& contourIds, const cv::Scalar &color);
 
     /** Draw shape triangles */
-    void drawShapeTriangulation(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& triangleIds, const cv::Scalar &color);
+    void drawShapeTriangulation(cv::Mat& canvas, Eigen::Ref<RowVectorX const> shape, Eigen::Ref<RowVectorXi const> triangleIds, const cv::Scalar &color);
     
     // for debugging: display the complete training set
     void showTrainingSet(const TrainingSet& trainingSet);

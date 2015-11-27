@@ -29,8 +29,8 @@ namespace aam {
     class TrainingSet {
     public:
         std::vector<cv::Mat> images;       // training images
-        cv::Mat shapes;    // NxM matrix with N (nb. rows) = number of training examples, M (nb. cols) = number of coordinates per training shape
         cv::Mat contour;  // optional: contours defined on the object (this data is just for visualization, not needed for actual AAM)
+        aam::MatrixX shapes;    // NxM matrix with N (nb. rows) = number of training examples, M (nb. cols) = number of coordinates per training shape
         aam::RowVectorXi triangles; // the triangles that span the shapes
     };
     

@@ -19,7 +19,6 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <aam/aam.h>
-#include <aam/io.h>
 
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
@@ -38,6 +37,7 @@ int main(int argc, char **argv)
 
     aam::TrainingSet trainingSet;
     aam::loadAsfTrainingSet(argv[1], trainingSet);
+    aam::Trainer::createTriangulation(trainingSet);
 
     aam::showTrainingSet(trainingSet);
 
