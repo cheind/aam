@@ -35,6 +35,7 @@ add_library(aam
 	inc/aam/model.h
     inc/aam/trainingset.h
 	inc/aam/trainer.h
+    inc/aam/transform.h
 	inc/aam/io/serialization.h
 	inc/aam/io/aam_generated.h
 	src/pca.cpp	
@@ -45,6 +46,7 @@ add_library(aam
 	src/rasterization.cpp
 	src/model.cpp
 	src/trainer.cpp
+    src/transform.cpp
 	src/io/serialization.cpp
 )
 	
@@ -77,5 +79,6 @@ add_executable(tests
 	tests/bilinear.cpp
 	tests/serialization.cpp
 	tests/views.cpp
+    tests/transform.cpp
 )
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})

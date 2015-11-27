@@ -18,19 +18,21 @@ You should have received a copy of the GNU General Public License
 along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AAM_H
-#define AAM_H
+#ifndef AAM_TRANSFORM_H
+#define AAM_TRANSFORM_H
 
 #include <aam/types.h>
-#include <aam/map.h>
-#include <aam/io.h>
-#include <aam/show.h>
-#include <aam/pca.h>
-#include <aam/procrustes.h>
-#include <aam/barycentrics.h>
-#include <aam/trainingset.h>
-#include <aam/model.h>
-#include <aam/trainer.h>
-#include <aam/transform.h>
+
+namespace aam {
+    
+    /** Transform shape by 2D affine transform. */
+    void transformShape(const Affine2 &t, Eigen::Ref<const RowVectorX> src, Eigen::Ref<RowVectorX> dst);
+    
+    /** Transform shape by 2D affine transform. */
+    void transformShapeInPlace(const Affine2 &t, Eigen::Ref<RowVectorX> srcdst);
+    
+    /** Transform shape by 2D affine transform. */
+    RowVectorX transformShape(const Affine2 &t, Eigen::Ref<const RowVectorX> src);
+}
 
 #endif

@@ -18,19 +18,27 @@ You should have received a copy of the GNU General Public License
 along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AAM_H
-#define AAM_H
 
-#include <aam/types.h>
-#include <aam/map.h>
-#include <aam/io.h>
-#include <aam/show.h>
-#include <aam/pca.h>
-#include <aam/procrustes.h>
-#include <aam/barycentrics.h>
-#include <aam/trainingset.h>
-#include <aam/model.h>
-#include <aam/trainer.h>
 #include <aam/transform.h>
+#include <aam/views.h>
+#include <Eigen/Dense>
 
-#endif
+namespace aam {
+
+    
+    void transformShape(const Affine2 &t, Eigen::Ref<const RowVectorX> src, Eigen::Ref<RowVectorX> dst)
+    {
+        dst = toInterleavedViewConst<Scalar>(toSeparatedViewConst<Scalar>(src).rowwise().homogeneous() * t);
+    }
+    
+    void transformShapeInPlace(const Affine2 &t, Eigen::Ref<RowVectorX> srcdst)
+    {
+        auto x = toSeparatedView<Scalar>(srcdst);
+        x = (x.rowwise().homogeneous() * t).eval();
+    }
+
+    RowVectorX transformShape(const Affine2 &t, Eigen::Ref<const RowVectorX> src)
+    {
+        return toInterleavedViewConst<Scalar>(toSeparatedViewConst<Scalar>(src).rowwise().homogeneous() * t);
+    }
+}
