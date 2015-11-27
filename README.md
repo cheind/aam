@@ -4,7 +4,7 @@
 
 # Active Appearance Models
 
-Implementation is based on [1].
+Implementation is based on [1]. Warning: this code is currently under heavy development and not suited for production usage.
 
 # Building from source
 **Active Appearance Models** requires the following pre-requisites
