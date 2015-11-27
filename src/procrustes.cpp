@@ -54,8 +54,8 @@ namespace aam {
 
         // Make sure we don't suffer from reflection.
         if (rot.determinant() < 0) {
-            v.col(1) *= -1;
-            s(1) *= -1;
+            v.rightCols(1) *= -1;
+            s.rightCols(1) *= -1;
             rot = v * u.transpose();
         }
 
