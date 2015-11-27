@@ -32,7 +32,7 @@ namespace aam {
         \param basis MxM matrix with PCA normalized vectors in columns sorted by ascending eigenvalues.
         \param weights 1xM matrix containing the eigenvalues sorted in ascending order.
      */
-    void computePCA(Eigen::Ref<const MatrixX> data, Eigen::Ref<RowVectorX> mean, Eigen::Ref<MatrixX> basis, Eigen::Ref<RowVectorX> weights);
+    void computePCA(Eigen::Ref<const MatrixX> data, RowVectorX &mean, MatrixX &basis, RowVectorX &weights);
     
     /** Compute the PCA subspace dimensionality for a given tolerated loss.
      

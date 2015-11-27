@@ -41,9 +41,9 @@ TEST_CASE("pca-ray")
     }
     
     // Compute PCA
-    aam::RowVector3 mean(data.cols());
+    aam::RowVectorX mean(data.cols());
     aam::MatrixX basis(data.cols(), data.cols());
-    aam::RowVector3 weights(data.cols());
+    aam::RowVectorX weights(data.cols());
     aam::computePCA(data, mean, basis, weights);
     
     Eigen::Vector3f::Index dims = aam::computePCADimensionality(weights, 0.00001f);
@@ -68,9 +68,9 @@ TEST_CASE("pca-gaussian")
     aam::MatrixX cov = generate2DCovarianceMatrixFromStretchAndRotation(3, 0.01, 0.0);
     aam::MatrixX samples = sampleMultivariateGaussian(mean, cov, 50);
 
-    aam::RowVector2 pcamean;
-    aam::Matrix2 pcabasis;
-    aam::RowVector2 pcaweights;
+    aam::RowVectorX pcamean;
+    aam::MatrixX pcabasis;
+    aam::RowVectorX pcaweights;
     aam::computePCA(samples, pcamean, pcabasis, pcaweights);
 
     REQUIRE(pcamean.isApprox(mean, 0.1f));
