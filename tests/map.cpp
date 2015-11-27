@@ -87,30 +87,3 @@ TEST_CASE("map-header-only")
     funcTakingMatrixRef(aam::toEigenHeader<float>(m));
     REQUIRE(cv::countNonZero(m) == 0);
 }
-
-TEST_CASE("interleave")
-{
-    aam::MatrixX ileaved(3, 4);
-    ileaved << 
-        1.f, 2.f, 3.f, 4.f,
-        5.f, 6.f, 7.f, 8.f,
-        9.f, 10.f, 11.f, 12.f;
-
-    aam::MatrixX nleaved = aam::fromInterleaved<aam::Scalar>(ileaved, 2);
-
-    REQUIRE(nleaved.rows() == 2);
-    REQUIRE(nleaved.cols() == 2 * 3);
-
-    aam::MatrixX nleavedRef(2, 6);
-    nleavedRef <<
-        1.f, 2.f, 5.f, 6.f, 9.f, 10.f,
-        3.f, 4.f, 7.f, 8.f, 11.f, 12.f;
-
-    REQUIRE(nleaved.isApprox(nleavedRef));
-
-    aam::MatrixX ileavedNew = aam::toInterleaved<aam::Scalar>(nleavedRef, 2);
-    REQUIRE(ileavedNew.rows() == ileaved.rows());
-    REQUIRE(ileavedNew.cols() == ileaved.cols());
-    REQUIRE(ileavedNew.isApprox(ileaved));
-
-}

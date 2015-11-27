@@ -22,6 +22,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/rasterization.h>
 #include <aam/barycentrics.h>
 #include <aam/map.h>
+#include <aam/views.h>
 #include <aam/bilinear.h>
 #include <opencv2/opencv.hpp>
 #include <iostream>
@@ -34,7 +35,7 @@ namespace aam {
         Eigen::Ref<const RowVectorXi> triangleIds,
         MatrixX::Index imageWidth, MatrixX::Index imageHeight, Scalar shapeScale)
     {
-        MatrixX points = fromInterleaved<Scalar>(pointsInterleaved) * shapeScale;
+        auto points = toSeparatedViewConst<Scalar>(pointsInterleaved) * shapeScale;
         MatrixX::Index nTriangles = triangleIds.size() / 3;
 
         std::vector<RowVector3> coords;

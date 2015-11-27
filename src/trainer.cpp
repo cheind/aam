@@ -26,6 +26,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/pca.h>
 #include <aam/rasterization.h>
 #include <aam/map.h>
+#include <aam/views.h>
 
 namespace aam {
     
@@ -36,9 +37,9 @@ namespace aam {
     }
 
     /** shift centroid to origin and scale to 0/1 */
-    void Trainer::normalizeShape(Eigen::Ref<MatrixX> shape, Eigen::Ref<RowVectorX> weights, Scalar& scaling) const {
+    void Trainer::normalizeShape(Eigen::Ref<RowVectorX> shape, Eigen::Ref<RowVectorX> weights, Scalar& scaling) const {
         // Convert points from interleaved to x,y per row.
-        MatrixX points = fromInterleaved<Scalar>(shape);
+        auto points = toSeparatedView<Scalar>(shape);
 
         // Center data
         RowVector2 mean = points.colwise().mean();
@@ -51,8 +52,6 @@ namespace aam {
         scaling = dia.maxCoeff();
         points *= Scalar(1) / scaling;
         weights *= Scalar(1) / scaling;
-
-        shape = toInterleaved<Scalar>(points);
     }
 
     void Trainer::train(ActiveAppearanceModel& model) {

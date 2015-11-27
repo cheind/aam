@@ -21,6 +21,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <aam/delaunay.h>
 #include <aam/map.h>
+#include <aam/views.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
 
@@ -28,7 +29,7 @@ namespace aam {
 
     RowVectorXi findDelaunayTriangulation(Eigen::Ref<const RowVectorX> ileavedPoints)
     {
-        MatrixX points = fromInterleaved<Scalar>(ileavedPoints);
+        auto points = toSeparatedViewConst<Scalar>(ileavedPoints);
         eigen_assert(points.cols() == 2);
 
         // Find min max.
