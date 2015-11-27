@@ -71,8 +71,7 @@ namespace aam {
             model.shapeMean, 
             model.triangleIndices, 
             _ts.images.front().cols, 
-            _ts.images.front().rows, 
-            1);
+            _ts.images.front().rows);
 
         cv::Mat scalarImage;
         cv::Mat colorSamples;
@@ -83,8 +82,7 @@ namespace aam {
             readShapeImage(
                 _ts.shapes.row(i), // Use orignal shapes here.
                 model.triangleIndices, 
-                model.barycentricSamplePositions, 
-                1, 
+                model.barycentricSamplePositions,
                 scalarImage,
                 colorSamples);
 

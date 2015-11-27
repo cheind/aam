@@ -33,9 +33,9 @@ namespace aam {
     MatrixX rasterizeShape(
         Eigen::Ref<const RowVectorX> pointsInterleaved,
         Eigen::Ref<const RowVectorXi> triangleIds,
-        MatrixX::Index imageWidth, MatrixX::Index imageHeight, Scalar shapeScale)
+        MatrixX::Index imageWidth, MatrixX::Index imageHeight)
     {
-        auto points = toSeparatedViewConst<Scalar>(pointsInterleaved) * shapeScale;
+        auto points = toSeparatedViewConst<Scalar>(pointsInterleaved);
         MatrixX::Index nTriangles = triangleIds.size() / 3;
 
         std::vector<RowVector3> coords;
@@ -70,10 +70,9 @@ namespace aam {
     }
     
     void writeShapeImage(
-        Eigen::Ref<const RowVectorX> normalizedShape,
+        Eigen::Ref<const RowVectorX> shape,
         Eigen::Ref<const RowVectorXi> triangleIds,
         Eigen::Ref<const MatrixX> barycentricSamplePositions,
-        Scalar shapeScale,
         cv::InputArray colorsAtSamplePositions_,
         cv::InputOutputArray dst_)
     {
@@ -84,7 +83,6 @@ namespace aam {
         IplImage dstipl = dst;
         
         // Loop over sample positions and write colors
-        RowVectorX points = normalizedShape * shapeScale;
         
         int triIdLast = -1;
         ParametrizedTriangle pt;
@@ -94,9 +92,9 @@ namespace aam {
             int triId = (int)rb(0);
             if (triId != triIdLast) {
                 pt.updateVertices(
-                    points.segment(2 * triangleIds(triId * 3 + 0), 2),
-                    points.segment(2 * triangleIds(triId * 3 + 1), 2),
-                    points.segment(2 * triangleIds(triId * 3 + 2), 2));                
+                    shape.segment(2 * triangleIds(triId * 3 + 0), 2),
+                    shape.segment(2 * triangleIds(triId * 3 + 1), 2),
+                    shape.segment(2 * triangleIds(triId * 3 + 2), 2));
                 triIdLast = triId;
             }
             
@@ -110,10 +108,9 @@ namespace aam {
     }
 
     void readShapeImage(
-        Eigen::Ref<const RowVectorX> normalizedShape,
+        Eigen::Ref<const RowVectorX> shape,
         Eigen::Ref<const RowVectorXi> triangleIds,
         Eigen::Ref<const MatrixX> barycentricSamplePositions,
-        Scalar shapeScale,
         cv::InputArray img_,
         cv::InputOutputArray dst_)
     {
@@ -124,8 +121,6 @@ namespace aam {
         
         IplImage dstipl = dst;
 
-        RowVectorX points = normalizedShape * shapeScale;
-
         int triIdLast = -1;
         ParametrizedTriangle pt;
         for (MatrixX::Index i = 0; i < barycentricSamplePositions.rows(); ++i) {
@@ -134,9 +129,9 @@ namespace aam {
             int triId = (int)rb(0);
             if (triId != triIdLast) {
                 pt.updateVertices(
-                    points.segment(2 * triangleIds(triId * 3+0), 2),
-                    points.segment(2 * triangleIds(triId * 3+1), 2),
-                    points.segment(2 * triangleIds(triId * 3+2), 2));
+                    shape.segment(2 * triangleIds(triId * 3+0), 2),
+                    shape.segment(2 * triangleIds(triId * 3+1), 2),
+                    shape.segment(2 * triangleIds(triId * 3+2), 2));
                 triIdLast = triId;
             }
 

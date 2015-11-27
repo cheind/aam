@@ -35,7 +35,7 @@ TEST_CASE("rasterization")
 
     aam::ParametrizedTriangle pt(points.row(0).segment(0, 2), points.row(0).segment(2, 2), points.row(0).segment(4, 2));
 
-    aam::MatrixX r = aam::rasterizeShape(points, triangleIds, 4, 4, 1);
+    aam::MatrixX r = aam::rasterizeShape(points, triangleIds, 4, 4);
 
     REQUIRE(r.rows() == 3);
     REQUIRE(r.cols() == 3);
@@ -44,14 +44,6 @@ TEST_CASE("rasterization")
     REQUIRE(pt.pointAt(r.rightCols(2).row(1)).isApprox(aam::RowVector2(2.5f, 1.5f)));
     REQUIRE(pt.pointAt(r.rightCols(2).row(2)).isApprox(aam::RowVector2(2.5f, 2.5f)));
     REQUIRE((r.leftCols(0).array() == aam::Scalar(0)).all());
-	
-    r = aam::rasterizeShape(points, triangleIds, 2, 2, .5f);
-    REQUIRE(r.rows() == 3);
-    REQUIRE(r.cols() == 3);
-
-    REQUIRE(pt.pointAt(r.rightCols(2).row(0)).isApprox(aam::RowVector2(1.f, 1.f)));
-    REQUIRE(pt.pointAt(r.rightCols(2).row(1)).isApprox(aam::RowVector2(3.f, 1.f)));
-    REQUIRE(pt.pointAt(r.rightCols(2).row(2)).isApprox(aam::RowVector2(3.f, 3.f)));
 }
 
 TEST_CASE("write-image")
@@ -62,7 +54,7 @@ TEST_CASE("write-image")
     aam::RowVectorXi triangleIds(3);
     triangleIds << 0, 1, 2;
     
-    aam::MatrixX r = aam::rasterizeShape(points, triangleIds, 4, 4, 1);
+    aam::MatrixX r = aam::rasterizeShape(points, triangleIds, 4, 4);
     
     {
         // Single channel test
@@ -73,7 +65,7 @@ TEST_CASE("write-image")
         
         cv::Mat img(4, 4, CV_32FC1);
         img.setTo(0);
-        aam::writeShapeImage(points, triangleIds, r, 1, colors, img);
+        aam::writeShapeImage(points, triangleIds, r, colors, img);
         
         aam::MatrixX shouldBe(4,4);
         shouldBe << 0, 0, 0, 0,
@@ -93,7 +85,7 @@ TEST_CASE("write-image")
         
         cv::Mat img(4, 4, CV_32FC3);
         img.setTo(0);
-        aam::writeShapeImage(points, triangleIds, r, 1, colors, img);
+        aam::writeShapeImage(points, triangleIds, r, colors, img);
         
         aam::MatrixX shouldBe(4, 4 * 3);
         shouldBe <<  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
