@@ -31,7 +31,9 @@ namespace aam {
     
     Trainer::Trainer(const TrainingSet& trainingSet) 
         :_ts(trainingSet)
-    {}
+    {
+        eigen_assert(trainingSet.triangles.array().size() > 0);
+    }
 
     /** shift centroid to origin and scale to 0/1 */
     void Trainer::normalizeShape(Eigen::Ref<MatrixX> shape, Eigen::Ref<RowVectorX> weights, Scalar& scaling) const {
@@ -55,22 +57,49 @@ namespace aam {
 
     void Trainer::train(ActiveAppearanceModel& model) {
 
-        aam::Scalar distance = aam::generalizedProcrustes(aam::toEigenHeader<aam::Scalar>(_ts.shapes), 10);
+        cv::Mat alignedShapes = _ts.shapes.clone();
 
-        aam::computePCA(aam::toEigenHeader<aam::Scalar>(_ts.shapes), model.shapeMean, model.shapeModes, model.shapeModeWeights);
+        Scalar distance = generalizedProcrustes(toEigenHeader<Scalar>(alignedShapes), 10);
+
+        computePCA(
+            toEigenHeader<aam::Scalar>(alignedShapes),
+            model.shapeMean, 
+            model.shapeModes,
+            model.shapeModeWeights);
+
+        model.triangleIndices = _ts.triangles;
+        model.barycentricSamplePositions = rasterizeShape(
+            model.shapeMean, 
+            model.triangleIndices, 
+            _ts.images.front().cols, 
+            _ts.images.front().rows, 
+            1);
+
+        cv::Mat scalarImage;
+        cv::Mat colorSamples;
+        MatrixX appearances(_ts.shapes.rows, model.barycentricSamplePositions.rows());
+        for (size_t i = 0; i < _ts.images.size(); ++i) {            
+            _ts.images[i].convertTo(scalarImage, cv::DataType<Scalar>::depth);
+            
+            readShapeImage(
+                toEigenHeader<Scalar>(_ts.shapes.row(i)), // Use orignal shapes here.
+                model.triangleIndices, 
+                model.barycentricSamplePositions, 
+                1, 
+                scalarImage,
+                colorSamples);
+
+            appearances.row(i) = toEigenHeader<Scalar>(colorSamples).transpose().row(0);
+        }
+
+        computePCA(
+            appearances,
+            model.appearanceMean,
+            model.appearanceModes,
+            model.appearanceModeWeights);
 
         // shape auf 0/1 normalisieren
         normalizeShape(model.shapeMean, model.shapeModeWeights, model.shapeScaleToTrainingSize);
-
-        // (delaunay -> do this in training set)
-
-        //aam::rasterizeShape(); -> bary
-
-        //aam:readShapeImage() pro Training Image -> texture vectors
-
-        //aam::pca(txtur)
-
-        //im model: show model instance for given model parameters
 
     }
 
