@@ -28,6 +28,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/pca.h>
 #include <aam/procrustes.h>
 #include <aam/barycentrics.h>
+#include <aam/trainingset.h>
 #include <aam/model.h>
 #include <aam/trainer.h>
 

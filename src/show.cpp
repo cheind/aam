@@ -22,6 +22,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/show.h>
 #include <aam/delaunay.h>
 #include <aam/map.h>
+#include <aam/trainingset.h>
 #include <opencv/highgui.h>
 #include <iostream>
 

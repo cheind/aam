@@ -18,8 +18,9 @@ You should have received a copy of the GNU General Public License
 along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "aam/io.h"
-#include "aam/types.h"
+#include <aam/io.h>
+#include <aam/types.h>
+#include <aam/trainingset.h>
 
 #include <iostream>
 #include <fstream>

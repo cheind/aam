@@ -33,6 +33,7 @@ add_library(aam
 	inc/aam/rasterization.h
 	inc/aam/bilinear.h
 	inc/aam/model.h
+    inc/aam/trainingset.h
 	inc/aam/trainer.h
 	inc/aam/io/serialization.h
 	inc/aam/io/aam_generated.h

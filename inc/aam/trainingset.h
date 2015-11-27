@@ -18,26 +18,22 @@ You should have received a copy of the GNU General Public License
 along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AAM_SHOW_H
-#define AAM_SHOW_H
+#ifndef AAM_TRAININGSET_H
+#define AAM_TRAININGSET_H
 
-#include <aam/fwd.h>
-#include <opencv2/core/core.hpp>
+#include <aam/types.h>
 
 namespace aam {
     
-    // for debugging draw a single shape on some image
-    void drawShapeLandmarks(cv::Mat& canvas, const cv::Mat& shape, const cv::Scalar &color);
-
-    /** Draw shape contour */
-    void drawShapeContour(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& contourIds, const cv::Scalar &color);
-
-    /** Draw shape triangles */
-    void drawShapeTriangulation(cv::Mat& canvas, const cv::Mat& shape, const cv::Mat& triangleIds, const cv::Scalar &color);
+    /** The complete training data that is needed to build/train an Active Appearance Model */
+    class TrainingSet {
+    public:
+        std::vector<cv::Mat> images;       // training images
+        cv::Mat shapes;    // NxM matrix with N (nb. rows) = number of training examples, M (nb. cols) = number of coordinates per training shape
+        cv::Mat contour;  // optional: contours defined on the object (this data is just for visualization, not needed for actual AAM)
+        aam::RowVectorXi triangles; // the triangles that span the shapes
+    };
     
-    // for debugging: display the complete training set
-    void showTrainingSet(const TrainingSet& trainingSet);
-
 }
 
 #endif

@@ -27,6 +27,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/rasterization.h>
 #include <aam/map.h>
 #include <aam/views.h>
+#include <aam/trainingset.h>
 
 namespace aam {
     

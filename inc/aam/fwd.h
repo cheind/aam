@@ -25,7 +25,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <iosfwd>
 
 namespace aam {
-    struct TrainingSet;
+    class TrainingSet;
     class ParametrizedTriangle;
     class ActiveAppearanceModel;
 }

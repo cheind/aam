@@ -43,7 +43,7 @@ namespace aam {
 
 
         /** the training data from which the trainer builds the AAM */
-        TrainingSet _ts;
+        const TrainingSet &_ts;
     };
 
 }

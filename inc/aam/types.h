@@ -51,16 +51,9 @@ namespace aam {
 
     /** Generic 1x3 row vector. */
     typedef AamMatrixTraits<Scalar, 1, 3>::MatrixType RowVector3;
-
-    /** The complete training data that is needed to build/train an Active Appearance Model */
-    struct TrainingSet {
-    public:
-        std::vector<cv::Mat> images;       // training images
-        cv::Mat shapes;    // NxM matrix with N (nb. rows) = number of training examples, M (nb. cols) = number of coordinates per training shape
-        cv::Mat contour;  // optional: contours defined on the object (this data is just for visualization, not needed for actual AAM)
-        aam::RowVectorXi triangles; // the triangles that span the shapes
-    };
-
+    
+    /** Affine matrix in compact storage for row-vector layout. */
+    typedef AamMatrixTraits<Scalar, 3, 2>::MatrixType Affine2;
 }
 
 #endif
