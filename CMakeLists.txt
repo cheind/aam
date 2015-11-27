@@ -22,6 +22,7 @@ add_library(aam
     inc/aam/traits.h
 	inc/aam/types.h	
 	inc/aam/map.h
+	inc/aam/views.h
 	inc/aam/pca.h
 	inc/aam/aam.h
 	inc/aam/io.h
@@ -74,5 +75,6 @@ add_executable(tests
 	tests/rasterization.cpp
 	tests/bilinear.cpp
 	tests/serialization.cpp
+	tests/views.cpp
 )
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})
