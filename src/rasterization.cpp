@@ -40,6 +40,18 @@ namespace aam {
 
         std::vector<RowVector3> coords;
 
+        aam::Scalar minX = points.row(triangleIds(0)).x();
+        aam::Scalar maxX = points.row(triangleIds(0)).x();
+        aam::Scalar minY = points.row(triangleIds(0)).y();
+        aam::Scalar maxY = points.row(triangleIds(0)).y();
+        for (MatrixX::Index tri = 0; tri < nTriangles * 3; ++tri) {
+            auto p = points.row(triangleIds(tri));
+            minX = std::min(p.x(), minX);
+            minY = std::min(p.y(), minY);
+            maxX = std::max(p.x(), maxX);
+            maxY = std::max(p.y(), maxY);
+        }
+
         for (MatrixX::Index tri = 0; tri < nTriangles; ++tri) {
             auto p0 = points.row(triangleIds(tri * 3 + 0));
             auto p1 = points.row(triangleIds(tri * 3 + 1));
@@ -47,8 +59,8 @@ namespace aam {
 
             ParametrizedTriangle pt(p0, p1, p2);
 
-            for (MatrixX::Index y = 0; y < imageHeight; ++y) {
-                for (MatrixX::Index x = 0; x < imageWidth; ++x) {
+            for (MatrixX::Index y = (MatrixX::Index)minY; y < (MatrixX::Index)(maxY+1); ++y) {
+                for (MatrixX::Index x = (MatrixX::Index)minX; x < (MatrixX::Index)(maxX+1); ++x) {
                     RowVector2 p((x + Scalar(0.5)), (y + Scalar(0.5)));
                     RowVector2 bary = pt.baryAt(p);
 
