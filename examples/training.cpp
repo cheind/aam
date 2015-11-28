@@ -50,6 +50,7 @@ void visualize(aam::ActiveAppearanceModel& model) {
 
     cv::Mat colors = aam::toOpenCVHeader<aam::Scalar>(model.appearanceMean.transpose());
     cv::Mat image = cv::Mat(640, 480, CV_8U);
+    image.setTo(0);
     aam::writeShapeImage(s, model.triangleIndices, model.barycentricSamplePositions, colors, image);
 
     printMat(model.shapeModeWeights.rightCols(1));
@@ -64,6 +65,7 @@ void visualize(aam::ActiveAppearanceModel& model) {
 
     cv::Mat s2Texture;
     cv::Mat image2 = cv::Mat(640, 480, CV_8U);
+    image2.setTo(0);
     std::cout << "read shape image..." << std::endl;
     // read texture image from mean shape image
     aam::readShapeImage(s, model.triangleIndices, barys, image, s2Texture);
