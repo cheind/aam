@@ -28,7 +28,8 @@ namespace aam {
     
     void transformShape(const Affine2 &t, Eigen::Ref<const RowVectorX> src, Eigen::Ref<RowVectorX> dst)
     {
-        dst = toInterleavedViewConst<Scalar>(toSeparatedViewConst<Scalar>(src).rowwise().homogeneous() * t);
+        aam::MatrixX transformedShape = toSeparatedViewConst<Scalar>(src).rowwise().homogeneous() * t;
+        dst = toInterleavedViewConst<Scalar>(transformedShape);
     }
     
     void transformShapeInPlace(const Affine2 &t, Eigen::Ref<RowVectorX> srcdst)
@@ -39,6 +40,7 @@ namespace aam {
 
     RowVectorX transformShape(const Affine2 &t, Eigen::Ref<const RowVectorX> src)
     {
-        return toInterleavedViewConst<Scalar>(toSeparatedViewConst<Scalar>(src).rowwise().homogeneous() * t);
+        aam::MatrixX transformedShape = toSeparatedViewConst<Scalar>(src).rowwise().homogeneous() * t;
+        return toInterleavedViewConst<Scalar>(transformedShape);
     }
 }
