@@ -25,7 +25,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace aam {
 
-    bool loadAsfTrainingSet(const std::string& directory, TrainingSet& trainingSet);
+    bool loadAsfTrainingSet(const std::string& directory, TrainingSet& trainingSet, int firstNExamplesToLoad = -1);
 }
 
 #endif

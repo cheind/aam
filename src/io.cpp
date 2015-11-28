@@ -84,7 +84,7 @@ bool parseAsfFile(const std::string& fileName, aam::RowVectorX &coords, cv::Mat&
     return true;
 }
 
-bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& trainingSet) {
+bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& trainingSet, int firstNExamplesToLoad) {
 
     trainingSet.images.clear();
 
@@ -94,6 +94,7 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
     
     bool ok = true;
     int i = 1;
+    int counter = 0;
     do {
         bool subIdOK = true;
         int j = 1;
@@ -116,12 +117,17 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
                 shapeVecs.push_back(coords);
                 trainingSet.images.push_back(img);
                 j++;
+                counter++;
             }
             else {
                 subIdOK = false;
             }
             delete[] name;
-        } while (subIdOK);
+
+            if ((firstNExamplesToLoad > 0) && (counter >= firstNExamplesToLoad)) {
+                ok = false;
+            }
+        } while (ok && subIdOK);
         if (j == 1) {
             ok = false;
         }
@@ -132,8 +138,8 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
         trainingSet.shapes.resize(shapeVecs.size(), shapeVecs[0].cols());
         
         for (size_t i = 0; i < shapeVecs.size(); ++i) {
-            aam::toSeparatedView<Scalar>(shapeVecs[i]).col(0) *= trainingSet.images[i].cols;
-            aam::toSeparatedView<Scalar>(shapeVecs[i]).col(1) *= trainingSet.images[i].rows;
+            aam::toSeparatedView<Scalar>(shapeVecs[i]).col(0) *= (aam::Scalar)trainingSet.images[i].cols;
+            aam::toSeparatedView<Scalar>(shapeVecs[i]).col(1) *= (aam::Scalar)trainingSet.images[i].rows;
             trainingSet.shapes.row(i) = shapeVecs[i];
         }
         trainingSet.contour = contour;
