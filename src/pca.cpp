@@ -29,10 +29,12 @@ namespace aam {
     {
         mean = data.colwise().mean();
         MatrixX centered = data.rowwise() - mean;
-        MatrixX cov = centered.adjoint() * centered;
+        //MatrixX cov = centered.adjoint() * centered;
+        MatrixX cov = centered * centered.adjoint();
 
         Eigen::SelfAdjointEigenSolver<MatrixX> eig(cov);
-        basis = eig.eigenvectors().transpose();
+        //basis = eig.eigenvectors().transpose();
+        basis = eig.eigenvectors().transpose() * centered;
         weights = eig.eigenvalues();
     }
 
