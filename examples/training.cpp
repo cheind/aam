@@ -30,57 +30,6 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 
-void printMat(aam::MatrixX m) {
-    for (int i = 0; i < m.rows(); i++) {
-        for (int j = 0; j < m.cols(); j++) {
-            std::cout << m(i, j) << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
-
-void visualize(aam::ActiveAppearanceModel& model) {
-
-    aam::MatrixX trafo = model.shapeTransformToTrainingData;
-    //trafo(2, 0) -= 200;
-    //trafo(2, 1) -= 200;
-
-    aam::RowVectorX s = aam::transformShape(trafo, model.shapeMean);
-
-    cv::Mat colors = aam::toOpenCVHeader<aam::Scalar>(model.appearanceMean.transpose());
-    cv::Mat image = cv::Mat(640, 480, CV_8U);
-    image.setTo(0);
-    aam::writeShapeImage(s, model.triangleIndices, model.barycentricSamplePositions, colors, image);
-
-    printMat(model.shapeModeWeights.rightCols(1));
-    printMat(model.shapeModes.bottomRows(1));
-
-    aam::Scalar w = 0.00005 * sqrt(model.shapeModeWeights.rightCols(1)(0, 0));
-
-    
-    aam::RowVectorX s2 = aam::transformShape(trafo, model.shapeMean + w * model.shapeModes.bottomRows(1));
-    std::cout << "rasterizeShape..." << std::endl;
-    aam::MatrixX barys = aam::rasterizeShape(s2, model.triangleIndices, 640, 480);
-
-    cv::Mat s2Texture;
-    cv::Mat image2 = cv::Mat(640, 480, CV_8U);
-    image2.setTo(0);
-    std::cout << "read shape image..." << std::endl;
-    // read texture image from mean shape image
-    aam::readShapeImage(s, model.triangleIndices, barys, image, s2Texture);
-    std::cout << "write shape image..." << std::endl;
-    aam::writeShapeImage(s2, model.triangleIndices, barys, s2Texture, image2);
-
-    aam::drawShapeLandmarks(image, s, cv::Scalar(0));
-    cv::imshow("img1", image);
-
-    aam::drawShapeLandmarks(image2, s2, cv::Scalar(0));
-    cv::imshow("img2", image2);
-    cv::waitKey(0);
-}
-
-
 /**
 
 Main entry point.
@@ -93,26 +42,38 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    
     aam::TrainingSet trainingSet;
     aam::loadAsfTrainingSet(argv[1], trainingSet);
 
     aam::Trainer::createTriangulation(trainingSet);
 
-    //aam::showTrainingSet(trainingSet);
-
     aam::Trainer trainer(trainingSet);
     aam::ActiveAppearanceModel model;
     trainer.train(model);
 
-    model.save("test.model");
-    
-    //aam::ActiveAppearanceModel model;
+    //model.save("test.model");
     //model.load("test.model");
 
-    visualize(model);
+    cv::Mat img(640, 480, CV_8U);
+    aam::RowVectorX shapeParams = model.shapeModeWeights * 0;
+    aam::RowVectorX appearanceParams = model.appearanceModeWeights * 0;
 
-    //aam::showTrainingSet(trainingSet);
+    int key = 0;
+    int counter = 0;
+    do {
+        img = cv::Scalar(0);
+
+        shapeParams(shapeParams.cols()-1) = (aam::Scalar)(std::sin((float)counter / 180 * 20));
+        appearanceParams(appearanceParams.cols()-1) = (aam::Scalar)(std::sin((float)counter / 180 * 20));
+        model.renderAppearanceInstanceToImage(img, aam::MatrixX(0, 0), shapeParams, appearanceParams);
+
+        cv::imshow("AAM instance", img);
+        key = cv::waitKey(50);
+
+        std::cout << "counter = " << counter << std::endl;
+
+        counter++;
+    } while(key != 27);
 
     return 0;
 }

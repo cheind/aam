@@ -24,6 +24,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include <iomanip>
+#include <math.h>
 
 /**
  
@@ -37,57 +38,38 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    
     aam::TrainingSet trainingSet;
     aam::loadAsfTrainingSet(argv[1], trainingSet);
-    
-    aam::generalizedProcrustes(trainingSet.shapes, 1);
 
-    // calculate PCA on shape data
-    cv::Mat mean;
-    cv::PCA pca(aam::toOpenCVHeader<aam::Scalar>(trainingSet.shapes), mean, 0, 0.001);
-    cv::Mat vecs = pca.eigenvectors;
-    cv::Mat vals = pca.eigenvalues;
-    mean = pca.mean;
+    aam::Trainer::createTriangulation(trainingSet);
 
-    // display bilinear interpolation between first two shapes
-    cv::Mat dispImg = cv::Mat(480, 640, CV_8U);
+    aam::Trainer trainer(trainingSet);
+    aam::ActiveAppearanceModel model;
+    trainer.train(model);
+
+    //model.save("test.model");
+    //model.load("test.model");
+
+    cv::Mat img(640, 480, CV_8U);
+    aam::RowVectorX shapeParams = model.shapeModeWeights * 0;
+
     int key = 0;
     int counter = 0;
-    while (key != 27) {
-        dispImg = cv::Scalar(0);
-        // limit variation of parameters to 3 * sqrt(lambda_i) 
-        // (see also: 
-        //  An Introduction to Active Shape Models, Tim Cootes, 2000 
-        // second but last paragraph on page 6, 
-        // link to PDF: http://www.ee.oulu.fi/research/imag/courses/Kokkinos/asm_overview.pdf)
-        double w0 = sin((double)counter / 20.0) * 3 * sqrt(vals.at<aam::Scalar>(0, 0));
-        double w1 = sin((double)counter / 24.0) * 3 * sqrt(vals.at<aam::Scalar>(1, 0));
-        //cv::Mat s = trainingSet.shapes.rowRange(0, 1) * w0 + trainingSet.shapes.rowRange(5, 6) * w1;
+    do {
+        img = cv::Scalar(0);
 
-        cv::Mat s = mean + w0 * vecs.rowRange(0, 1) + w1 * vecs.rowRange(1, 2);
+        shapeParams(shapeParams.cols()-1) = (aam::Scalar)(0.5 * std::sin((float)counter / 180 * 20));
+        shapeParams(shapeParams.cols()-2) = (aam::Scalar)(0.5 * std::sin((float)counter / 180 * 17));
+        model.renderShapeInstanceToImage(img, aam::MatrixX(0, 0), shapeParams);
 
-        aam::drawShapeLandmarks(dispImg, aam::toEigenHeader<aam::Scalar>(s), cv::Scalar::all(255));
-        cv::imshow("img", dispImg);
-        std::cout << "w = " << w0 << std::endl;
-        key = cv::waitKey(10);
+        cv::imshow("AAM instance", img);
+        key = cv::waitKey(50);
+
         counter++;
-    }
-
-    /* TODO
-    aam::procrustes(M_in, M_out);  // M...PxQ elements with P = number of shapes, Q = number of coordinates per shape
-                                   // output: same matrix as input but shaped aligned (i.e. modulo translation, scaling and rotation)
-
-    aam::pca(M_out, mean_out, basis_out, weights_out);
-
-    //aam::barySample(imgs, tex_Mat_out)
-    //aam::pca(tex_Mat_out)
-
-    for (x = -weights[0] : weights[0]) {
-        s = s0 + x * basis_out
-        show(s);
-    }
-    */
-
+        std::cout << "counter = " << counter << std::endl;
+    } while(key != 27);
+    
 	return 0;
 }
 

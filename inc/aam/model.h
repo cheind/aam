@@ -98,6 +98,12 @@ namespace aam {
         
         /** Load model from file */
         bool load(const char *path);
+
+        /** Draw the given model instance (shape only) to an image */
+        void renderShapeInstanceToImage(cv::Mat& image, MatrixX trafo, RowVectorX shapeParameters);
+
+        /** Draw the given model instance (including shape and texture) to an image */
+        void renderAppearanceInstanceToImage(cv::Mat& image, MatrixX trafo, RowVectorX shapeParameters, RowVectorX appearanceParameters);
     };
    
 }

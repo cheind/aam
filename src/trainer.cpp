@@ -96,11 +96,6 @@ namespace aam {
                 colorSamples);
 
             appearances.row(i) = toEigenHeader<Scalar>(colorSamples).transpose().row(0);
-
-            for (int j = 0; j < 10; j++) {
-                std::cout << appearances.row(i)[j] << "   ";
-            }
-            std::cout << std::endl;
         }
 
         computePCA(

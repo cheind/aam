@@ -24,18 +24,33 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 namespace aam {
-    
+
     void computePCA(Eigen::Ref<const MatrixX> data, RowVectorX &mean, MatrixX &basis, RowVectorX &weights)
     {
         mean = data.colwise().mean();
         MatrixX centered = data.rowwise() - mean;
-        //MatrixX cov = centered.adjoint() * centered;
-        MatrixX cov = centered * centered.adjoint();
 
-        Eigen::SelfAdjointEigenSolver<MatrixX> eig(cov);
-        //basis = eig.eigenvectors().transpose();
-        basis = eig.eigenvectors().transpose() * centered;
-        weights = eig.eigenvalues();
+        if (data.rows() > data.cols()) {
+
+            MatrixX cov = (centered.adjoint() * centered) * ((aam::Scalar)1.0 / (aam::Scalar)(data.cols()-1));
+            //MatrixX cov = centered.adjoint() * centered;
+
+            Eigen::SelfAdjointEigenSolver<MatrixX> eig(cov);
+            basis = eig.eigenvectors().transpose();
+            weights = eig.eigenvalues();
+
+        } else {
+
+            MatrixX cov2 = (centered * centered.adjoint()) * ((aam::Scalar)1.0 / (aam::Scalar)(data.rows()-1));
+            //MatrixX cov2 = centered * centered.transpose();
+
+            Eigen::SelfAdjointEigenSolver<MatrixX> eig2(cov2);
+            MatrixX b = (centered.transpose() * eig2.eigenvectors()).transpose();
+            MatrixX n = b.rowwise().norm();
+            b.rowwise().normalize();    
+            basis = b;
+            weights = eig2.eigenvalues();
+        }
     }
 
     RowVectorX::Index computePCADimensionality(Eigen::Ref<const RowVectorX> weights, MatrixX::Scalar toleratedCompressionLoss) {
