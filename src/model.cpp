@@ -76,6 +76,7 @@ namespace aam {
 
         RowVectorX s = transformShape(trafo, shapeMean + (shapeParameters * shapeModes).colwise().sum());
 
+        aam::drawShapeTriangulation(image, s, triangleIndices, cv::Scalar(128));
         aam::drawShapeLandmarks(image, s, cv::Scalar(255));
     }
 
@@ -89,8 +90,8 @@ namespace aam {
         RowVectorX s0 = transformShape(shapeTransformToTrainingData, shapeMean);
 
         RowVectorX appearance = appearanceMean + (appearanceParameters * appearanceModes).colwise().sum();
-        //cv::Mat colors = toOpenCVHeader<aam::Scalar>(().transpose());
-        cv::Mat colors = toOpenCVHeader<aam::Scalar>(appearance.transpose());
+        MatrixX appearanceTransposed = appearance.transpose();
+        cv::Mat colors = toOpenCVHeader<aam::Scalar>(appearanceTransposed);
 
         cv::Mat meanShapeImage = image.clone();
         aam::writeShapeImage(s0, triangleIndices, barycentricSamplePositions, colors, meanShapeImage);

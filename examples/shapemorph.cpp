@@ -52,22 +52,28 @@ int main(int argc, char **argv)
     //model.load("test.model");
 
     cv::Mat img(640, 480, CV_8U);
-    aam::RowVectorX shapeParams = model.shapeModeWeights * 0;
 
     int key = 0;
     int counter = 0;
     do {
         img = cv::Scalar(0);
 
-        shapeParams(shapeParams.cols()-1) = (aam::Scalar)(0.5 * std::sin((float)counter / 180 * 20));
-        shapeParams(shapeParams.cols()-2) = (aam::Scalar)(0.5 * std::sin((float)counter / 180 * 17));
+        aam::RowVectorX shapeParams = model.shapeModeWeights * 0;
+
+        int mode = (int)((counter / 120) % 5 + 1);
+        aam::Scalar eigenValue = model.shapeModeWeights(model.shapeModeWeights.cols() - mode);
+        shapeParams(shapeParams.cols() - mode) = (aam::Scalar)(3 * sqrt(eigenValue) * std::sin((float)counter / 180 * 20));
+
         model.renderShapeInstanceToImage(img, aam::MatrixX(0, 0), shapeParams);
 
+        char str[100];
+        sprintf(str, "mode %d", mode);
+        cv::putText(img, str, cv::Point2i(100, 300), 1, 1, cv::Scalar(255));
+
         cv::imshow("AAM instance", img);
-        key = cv::waitKey(50);
+        key = cv::waitKey(10);
 
         counter++;
-        std::cout << "counter = " << counter << std::endl;
     } while(key != 27);
     
 	return 0;

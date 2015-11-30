@@ -53,7 +53,7 @@ namespace aam {
         RowVector2 dia = maxC - minC;
         Scalar scaling = dia.maxCoeff();
         points *= Scalar(1) / scaling;
-        weights *= Scalar(1) / scaling;
+        weights *= Scalar(1) / (scaling * scaling);
         
         Affine2 t;
         t.setZero();

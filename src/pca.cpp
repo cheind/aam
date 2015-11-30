@@ -32,8 +32,7 @@ namespace aam {
 
         if (data.rows() > data.cols()) {
 
-            MatrixX cov = (centered.adjoint() * centered) * ((aam::Scalar)1.0 / (aam::Scalar)(data.cols()-1));
-            //MatrixX cov = centered.adjoint() * centered;
+            MatrixX cov = (centered.adjoint() * centered) * ((aam::Scalar)1.0 / (aam::Scalar)(data.rows() - 1));
 
             Eigen::SelfAdjointEigenSolver<MatrixX> eig(cov);
             basis = eig.eigenvectors().transpose();
@@ -41,8 +40,7 @@ namespace aam {
 
         } else {
 
-            MatrixX cov2 = (centered * centered.adjoint()) * ((aam::Scalar)1.0 / (aam::Scalar)(data.rows()-1));
-            //MatrixX cov2 = centered * centered.transpose();
+            MatrixX cov2 = (centered * centered.adjoint()) * ((aam::Scalar)1.0 / (aam::Scalar)(data.rows() - 1));
 
             Eigen::SelfAdjointEigenSolver<MatrixX> eig2(cov2);
             MatrixX b = (centered.transpose() * eig2.eigenvectors()).transpose();
