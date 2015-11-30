@@ -55,20 +55,27 @@ int main(int argc, char **argv)
     //model.load("test.model");
 
     cv::Mat img(640, 480, CV_8U);
-    aam::RowVectorX shapeParams = model.shapeModeWeights * 0;
-    aam::RowVectorX appearanceParams = model.appearanceModeWeights * 0;
 
     int key = 0;
     int counter = 0;
     do {
         img = cv::Scalar(0);
 
-        shapeParams(shapeParams.cols()-1) = (aam::Scalar)(std::sin((float)counter / 180 * 20));
-        appearanceParams(appearanceParams.cols()-1) = (aam::Scalar)(std::sin((float)counter / 180 * 20));
+        aam::RowVectorX shapeParams = model.shapeModeWeights * 0;
+        aam::RowVectorX appearanceParams = model.appearanceModeWeights * 0;
+
+		//int mode = (int)((counter / 120) % 5 + 1);
+		//aam::Scalar eigenValue = model.shapeModeWeights(model.shapeModeWeights.cols() - mode);
+		//shapeParams(shapeParams.cols() - mode) = (aam::Scalar)(3 * sqrt(eigenValue) * std::sin((float)counter / 180 * 20));
+
+		int aMode = (int)((counter / 120) % 5 + 1);
+		aam::Scalar aEigenValue = model.appearanceModeWeights(model.appearanceModeWeights.cols() - aMode);
+		appearanceParams(appearanceParams.cols() - aMode) = (aam::Scalar)(3 * sqrt(aEigenValue) * std::sin((float)counter / 180 * 20));
+
         model.renderAppearanceInstanceToImage(img, aam::MatrixX(0, 0), shapeParams, appearanceParams);
 
         cv::imshow("AAM instance", img);
-        key = cv::waitKey(50);
+        key = cv::waitKey(10);
 
         std::cout << "counter = " << counter << std::endl;
 
