@@ -63,6 +63,8 @@ namespace aam {
 
         const aam::io::ActiveAppearanceModel *am = aam::io::GetActiveAppearanceModel(buffer);
         aam::io::fromFlatbuffers(*am, *this);
+        
+        delete [] buffer;
 
         return true;
     }
