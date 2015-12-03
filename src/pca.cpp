@@ -30,7 +30,7 @@ namespace aam {
         mean = data.colwise().mean();
         MatrixX centered = data.rowwise() - mean;
 
-        if (data.rows() > data.cols()) {
+        if (data.rows() > data.cols()) {  // use regular Eigen-analysis
 
             MatrixX cov = (centered.adjoint() * centered) * ((aam::Scalar)1.0 / (aam::Scalar)(data.rows() - 1));
 
@@ -38,7 +38,9 @@ namespace aam {
             basis = eig.eigenvectors().transpose();
             weights = eig.eigenvalues();
 
-        } else {
+        } else {  // use "trick" (see http://www.doc.ic.ac.uk/~dfg/ProbabilisticInference/IDAPILecture15.pdf, Page 5) 
+                  // to reduce size of covariance matrix. Important: need to multiply by centered.transpose() and 
+                  // apply normalization of eigenvectors afterwards!
 
             MatrixX cov2 = (centered * centered.adjoint()) * ((aam::Scalar)1.0 / (aam::Scalar)(data.rows() - 1));
 
