@@ -1,0 +1,3 @@
+[submodule "imagealign"]
+	path = imagealign
+	url = https://github.com/cheind/image-align.git
