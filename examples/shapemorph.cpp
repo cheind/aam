@@ -60,9 +60,10 @@ int main(int argc, char **argv)
 
         aam::RowVectorX shapeParams = model.shapeModeWeights * 0;
 
-        int mode = (int)((counter / 120) % 5 + 1);
+	double deg = counter * 2;
+        int mode = ((int)(deg / 360)) % 5 + 1;
         aam::Scalar eigenValue = model.shapeModeWeights(model.shapeModeWeights.cols() - mode);
-        shapeParams(shapeParams.cols() - mode) = (aam::Scalar)(3 * sqrt(eigenValue) * std::sin((float)counter / 180 * 20));
+        shapeParams(shapeParams.cols() - mode) = (aam::Scalar)(3 * sqrt(eigenValue) * std::sin(deg / 180 * 3.14156));
 
         model.renderShapeInstanceToImage(img, aam::MatrixX(0, 0), shapeParams);
 

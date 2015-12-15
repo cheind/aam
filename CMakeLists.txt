@@ -61,8 +61,8 @@ target_link_libraries(aam_shapemorph aam ${OpenCV_LIBRARIES})
 add_executable(aam_showtrainingdata examples/showtrainingdata.cpp)
 target_link_libraries(aam_showtrainingdata aam ${OpenCV_LIBRARIES})
 
-add_executable(aam_training examples/training.cpp)
-target_link_libraries(aam_training aam ${OpenCV_LIBRARIES})
+add_executable(aam_appearancevariation examples/appearancevariation.cpp)
+target_link_libraries(aam_appearancevariation aam ${OpenCV_LIBRARIES})
 
 # Tests
 

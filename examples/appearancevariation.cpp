@@ -64,13 +64,14 @@ int main(int argc, char **argv)
         aam::RowVectorX shapeParams = model.shapeModeWeights * 0;
         aam::RowVectorX appearanceParams = model.appearanceModeWeights * 0;
 
-		//int mode = (int)((counter / 120) % 5 + 1);
-		//aam::Scalar eigenValue = model.shapeModeWeights(model.shapeModeWeights.cols() - mode);
-		//shapeParams(shapeParams.cols() - mode) = (aam::Scalar)(3 * sqrt(eigenValue) * std::sin((float)counter / 180 * 20));
+        //int mode = (int)((counter / 120) % 5 + 1);
+        //aam::Scalar eigenValue = model.shapeModeWeights(model.shapeModeWeights.cols() - mode);
+        //shapeParams(shapeParams.cols() - mode) = (aam::Scalar)(3 * sqrt(eigenValue) * std::sin((float)counter / 180 * 20));
 
-		int aMode = (int)((counter / 120) % 5 + 1);
-		aam::Scalar aEigenValue = model.appearanceModeWeights(model.appearanceModeWeights.cols() - aMode);
-		appearanceParams(appearanceParams.cols() - aMode) = (aam::Scalar)(3 * sqrt(aEigenValue) * std::sin((float)counter / 180 * 20));
+        double deg = counter * 2;
+        int aMode = ((int)(deg / 360)) % 5 + 1;
+	aam::Scalar aEigenValue = model.appearanceModeWeights(model.appearanceModeWeights.cols() - aMode);
+        appearanceParams(appearanceParams.cols() - aMode) = (aam::Scalar)(3 * sqrt(aEigenValue) * std::sin(deg / 180 * 3.14156));
 
         model.renderAppearanceInstanceToImage(img, aam::MatrixX(0, 0), shapeParams, appearanceParams);
 
