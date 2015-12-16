@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     //model.save("test.model");
     //model.load("test.model");
 
-    cv::Mat img(640, 480, CV_8U);
+    cv::Mat img(480, 640, CV_8U);
 
     int key = 0;
     int counter = 0;
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
         aam::RowVectorX shapeParams = model.shapeModeWeights * 0;
 
-	double deg = counter * 2;
+        double deg = counter * 2;
         int mode = ((int)(deg / 360)) % 5 + 1;
         aam::Scalar eigenValue = model.shapeModeWeights(model.shapeModeWeights.cols() - mode);
         shapeParams(shapeParams.cols() - mode) = (aam::Scalar)(3 * sqrt(eigenValue) * std::sin(deg / 180 * 3.14156));

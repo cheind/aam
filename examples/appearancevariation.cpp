@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     //model.save("test.model");
     //model.load("test.model");
 
-    cv::Mat img(640, 480, CV_8U);
+    cv::Mat img(480, 640, CV_8U);
 
     int key = 0;
     int counter = 0;
@@ -64,17 +64,19 @@ int main(int argc, char **argv)
         aam::RowVectorX shapeParams = model.shapeModeWeights * 0;
         aam::RowVectorX appearanceParams = model.appearanceModeWeights * 0;
 
-        double deg = counter * 2;
+        double deg = counter * 5;
         int aMode = ((int)(deg / 360)) % 5 + 1;
         aam::Scalar aEigenValue = model.appearanceModeWeights(model.appearanceModeWeights.cols() - aMode);
         appearanceParams(appearanceParams.cols() - aMode) = (aam::Scalar)(3 * sqrt(aEigenValue) * std::sin(deg / 180 * 3.14156));
 
         model.renderAppearanceInstanceToImage(img, aam::MatrixX(0, 0), shapeParams, appearanceParams);
 
+        char str[100];
+        sprintf(str, "mode %d", aMode);
+        cv::putText(img, str, cv::Point2i(100, 300), 1, 1, cv::Scalar(255));
+
         cv::imshow("AAM instance", img);
         key = cv::waitKey(10);
-
-        std::cout << "counter = " << counter << std::endl;
 
         counter++;
     } while(key != 27);
