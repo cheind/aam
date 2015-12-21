@@ -14,7 +14,9 @@ set(EIGEN_INCLUDE_DIR "../eigen" CACHE PATH "Where is the include directory of E
 set(AAM_TESTS_VERBOSE 0 CACHE BOOL "Tests will show visualizations when enabled")
 find_package(OpenCV REQUIRED)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${OpenCV_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIR} "inc")
+add_subdirectory(imagealign)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${OpenCV_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIR} "inc" "imagealign/inc")
 
 # Library
 add_library(aam
@@ -72,7 +74,7 @@ target_link_libraries(aam_matching aam ${OpenCV_LIBRARIES})
 # Tests
 
 configure_file(tests/config.h.in test_config.h)
-add_executable(tests
+add_executable(aam_tests
 	test_config.h
     tests/catch.hpp
 	tests/random_distributions.h
@@ -88,4 +90,4 @@ add_executable(tests
     tests/transform.cpp
 	tests/matching.cpp
 )
-target_link_libraries(tests aam ${OpenCV_LIBRARIES})
+target_link_libraries(aam_tests aam ${OpenCV_LIBRARIES})
