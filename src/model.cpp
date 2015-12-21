@@ -83,7 +83,7 @@ namespace aam {
     }
 
     /** Draw the given model instance (including shape and texture) to an image */
-    void ActiveAppearanceModel::renderAppearanceInstanceToImage(cv::Mat& image, MatrixX trafo, RowVectorX shapeParameters, RowVectorX appearanceParameters) {
+    void ActiveAppearanceModel::renderAppearanceInstanceToImage(cv::Mat& image, MatrixX trafo, RowVectorX shapeParameters, RowVectorX appearanceParameters, bool drawShape) {
 
         if (trafo.rows() == 0) {
             trafo = shapeTransformToTrainingData;
@@ -109,7 +109,9 @@ namespace aam {
         // pixel positions; no interpolation required!)
         aam::writeShapeImage(shape, triangleIndices, barys, s2Texture, image);
 
-        aam::drawShapeLandmarks(image, shape, cv::Scalar(255));
+        if (drawShape) {
+            aam::drawShapeLandmarks(image, shape, cv::Scalar(255));
+        }
     }
 
 }
