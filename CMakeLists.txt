@@ -66,6 +66,9 @@ target_link_libraries(aam_showtrainingdata aam ${OpenCV_LIBRARIES})
 add_executable(aam_appearancevariation examples/appearancevariation.cpp)
 target_link_libraries(aam_appearancevariation aam ${OpenCV_LIBRARIES})
 
+add_executable(aam_matching examples/matching.cpp)
+target_link_libraries(aam_matching aam ${OpenCV_LIBRARIES})
+
 # Tests
 
 configure_file(tests/config.h.in test_config.h)
@@ -83,5 +86,6 @@ add_executable(tests
 	tests/serialization.cpp
 	tests/views.cpp
     tests/transform.cpp
+	tests/matching.cpp
 )
 target_link_libraries(tests aam ${OpenCV_LIBRARIES})

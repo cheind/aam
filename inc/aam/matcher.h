@@ -38,7 +38,7 @@ namespace aam {
         Matcher(const aam::ActiveAppearanceModel& model);
 
         /** match the active appearance model to the given image */
-        void match(const cv::Mat& image, aam::Matrix2& initialPose, aam::MatrixX& shapeParams, aam::MatrixX& textureParams);
+        void match(const cv::Mat& image, aam::Affine2& pose, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams);
     };
 
 }
