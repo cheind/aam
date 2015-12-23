@@ -33,6 +33,10 @@ bool parseAsfFile(const std::string& fileName, aam::RowVectorX &coords, cv::Mat&
 
     std::ifstream file(fileName);
 
+    if (!file.is_open()) {
+        return false;
+    }
+
     std::string line;
     while (std::getline(file, line)) {
         if (line.size() > 0) {
@@ -84,6 +88,24 @@ bool parseAsfFile(const std::string& fileName, aam::RowVectorX &coords, cv::Mat&
     return true;
 }
 
+bool loadTrainingExample(const std::string& directory, int majorIndex, int minorIndex, const std::string& sex, cv::Mat& image, aam::RowVectorX& shape, cv::Mat& contour) {
+    char *name = new char[directory.size() + 100];
+#ifdef _WIN32
+    sprintf_s(name, directory.size() + 100, "%s/%02d-%d%s", directory.c_str(), majorIndex, minorIndex, sex.c_str());
+#else
+    sprintf(name, "%s/%02d-%d%s", directory.c_str(), majorIndex, minorIndex, sex.c_str());
+#endif
+    std::string fileNameImg = std::string(name) + ".jpg";
+    std::string fileNamePts = std::string(name) + ".asf";
+    
+    image = cv::imread(fileNameImg, 0);
+    std::cout << "loading " << fileNameImg << ", " << fileNamePts << std::endl;
+    
+    delete[] name;
+
+    return parseAsfFile(fileNamePts, shape, contour);
+}
+
 bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& trainingSet, int firstNExamplesToLoad) {
 
     trainingSet.images.clear();
@@ -99,30 +121,22 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
         bool subIdOK = true;
         int j = 1;
         do {
-            char *name = new char[directory.size() + 100];
-#ifdef _WIN32
-            sprintf_s(name, directory.size() + 100, "%s/%02d-%dm", directory.c_str(), i, j);
-#else
-            sprintf(name, "%s/%02d-%dm", directory.c_str(), i, j);
-#endif
-            std::string fileNameImg = std::string(name) + ".jpg";
-            std::string fileNamePts = std::string(name) + ".asf";
-            
-            cv::Mat img = cv::imread(fileNameImg, 0);
-            std::cout << "loading " << fileNameImg << ", " << fileNamePts << std::endl;
-            
-            aam::RowVectorX coords;
-            parseAsfFile(fileNamePts, coords, contour);
-            if (coords.cols() > 0) {
-                shapeVecs.push_back(coords);
-                trainingSet.images.push_back(img);
+            cv::Mat image;
+            aam::RowVectorX shape;
+            if (!loadTrainingExample(directory, i, j, "m", image, shape, contour)) {
+                loadTrainingExample(directory, i, j, "f", image, shape, contour);
+            }
+
+            if (shape.cols() > 0) {
+                shapeVecs.push_back(shape);
+                trainingSet.images.push_back(image);
                 j++;
                 counter++;
             }
+
             else {
                 subIdOK = false;
             }
-            delete[] name;
 
             if ((firstNExamplesToLoad > 0) && (counter >= firstNExamplesToLoad)) {
                 ok = false;
@@ -135,14 +149,14 @@ bool aam::loadAsfTrainingSet(const std::string& directory, aam::TrainingSet& tra
     } while (ok);
 
     // assemble the complete shape matrix from all training shapes that are given as row vectors
-        trainingSet.shapes.resize(shapeVecs.size(), shapeVecs[0].cols());
+    trainingSet.shapes.resize(shapeVecs.size(), shapeVecs[0].cols());
         
-        for (size_t i = 0; i < shapeVecs.size(); ++i) {
-            aam::toSeparatedView<Scalar>(shapeVecs[i]).col(0) *= (aam::Scalar)trainingSet.images[i].cols;
-            aam::toSeparatedView<Scalar>(shapeVecs[i]).col(1) *= (aam::Scalar)trainingSet.images[i].rows;
-            trainingSet.shapes.row(i) = shapeVecs[i];
-        }
-        trainingSet.contour = contour;
+    for (size_t i = 0; i < shapeVecs.size(); ++i) {
+        aam::toSeparatedView<Scalar>(shapeVecs[i]).col(0) *= (aam::Scalar)trainingSet.images[i].cols;
+        aam::toSeparatedView<Scalar>(shapeVecs[i]).col(1) *= (aam::Scalar)trainingSet.images[i].rows;
+        trainingSet.shapes.row(i) = shapeVecs[i];
+    }
+    trainingSet.contour = contour;
 
     return ok;
 }
