@@ -37,37 +37,29 @@ int main(int argc, char **argv)
     }
 
     aam::TrainingSet trainingSet;
-    aam::loadAsfTrainingSet(argv[1], trainingSet);
+    aam::loadAsfTrainingSet(argv[1], trainingSet, 15);
     aam::Trainer::createTriangulation(trainingSet);
 
     //aam::showTrainingSet(trainingSet);
 
     aam::ActiveAppearanceModel model;
+
+#define BUILD_MODEL  // comment this line and re-compile to load existing model (faster start-up in debug-mode)
+#ifdef BUILD_MODEL  // build the model from the training data
     aam::Trainer trainer(trainingSet);
     trainer.train(model);
-
-    //model.save("model.data");
-    //model.load("model.data");
+    model.save("model.data");
+#else  // load saved model
+    model.load("model.data");
+#endif
 
     aam::Matcher matcher(model);
     aam::Affine2 pose;
-    aam::RowVectorX shapeParams;
-    aam::RowVectorX appearanceParams;
-    cv::Mat image = trainingSet.images[13].clone();
+    aam::RowVectorX shapeParams = aam::RowVectorX::Zero(1, model.shapeModeWeights.cols());
+    aam::RowVectorX appearanceParams = aam::RowVectorX::Zero(1, model.appearanceModeWeights.cols());
+    cv::Mat image = trainingSet.images[10].clone();  // use the 10-th face from the training set
+    //cv::Mat image = cv::imread("c:/data/dev/aam_data/test_001.jpg", 0);
     matcher.match(image, pose, shapeParams, appearanceParams);
-
-    /*
-    cv::Mat imgShowAppearance = trainingSet.images[0].clone();
-    model.renderAppearanceInstanceToImage(imgShowAppearance, pose, shapeParams, appearanceParams);
-
-    cv::Mat imgShowShape = trainingSet.images[0].clone();
-    model.renderShapeInstanceToImage(imgShowShape, pose, shapeParams);
-
-    cv::imshow("Image", image);
-    cv::imshow("MatchedAppearance", imgShowAppearance);
-    cv::imshow("MatchedShape", imgShowShape);
-    cv::waitKey(0);
-    */
 
 	return 0;
 }

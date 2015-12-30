@@ -152,5 +152,35 @@ namespace aam {
             cvSet2D(&dstipl, i, 0, bilinear(img, p(1), p(0)));
         }
     }
+
+    void barycentricToCartesian(
+        Eigen::Ref<const RowVectorX> shape,
+        Eigen::Ref<const RowVectorXi> triangleIds,
+        Eigen::Ref<const MatrixX> barycentricPoints,
+        std::vector<RowVector2>& cartesianPoints) 
+    {
+        // just to be sure: clear the vector of points
+        cartesianPoints.clear();
+
+        // Loop over sample positions and get coordinates
+        
+        int triIdLast = -1;
+        ParametrizedTriangle pt;
+        for (MatrixX::Index i = 0; i < barycentricPoints.rows(); ++i) {
+            auto rb = barycentricPoints.row(i);
+
+            int triId = (int)rb(0);
+            if (triId != triIdLast) {
+                pt.updateVertices(
+                    shape.segment(2 * triangleIds(triId * 3 + 0), 2),
+                    shape.segment(2 * triangleIds(triId * 3 + 1), 2),
+                    shape.segment(2 * triangleIds(triId * 3 + 2), 2));
+                triIdLast = triId;
+            }
+            
+            auto p = pt.pointAt(rb.rightCols(2));
+            cartesianPoints.push_back(p);
+        }
+    }
     
 }

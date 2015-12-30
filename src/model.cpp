@@ -70,7 +70,8 @@ namespace aam {
     }
 
     /** Draw the given model instance (shape only) to an image */
-    void ActiveAppearanceModel::renderShapeInstanceToImage(cv::Mat& image, MatrixX trafo, RowVectorX shapeParameters) {
+    void ActiveAppearanceModel::renderShapeInstanceToImage(cv::Mat& image, MatrixX trafo, RowVectorX shapeParameters) 
+    {
 
         if (trafo.rows() == 0) {
             trafo = shapeTransformToTrainingData;
@@ -83,7 +84,8 @@ namespace aam {
     }
 
     /** Draw the given model instance (including shape and texture) to an image */
-    void ActiveAppearanceModel::renderAppearanceInstanceToImage(cv::Mat& image, MatrixX trafo, RowVectorX shapeParameters, RowVectorX appearanceParameters, bool drawShape) {
+    void ActiveAppearanceModel::renderAppearanceInstanceToImage(cv::Mat& image, MatrixX trafo, RowVectorX shapeParameters, RowVectorX appearanceParameters, bool drawShape) 
+    {
 
         if (trafo.rows() == 0) {
             trafo = shapeTransformToTrainingData;
@@ -112,6 +114,13 @@ namespace aam {
         if (drawShape) {
             aam::drawShapeLandmarks(image, shape, cv::Scalar(255));
         }
+    }
+
+    void ActiveAppearanceModel::getCartesianPixelCoordinates(MatrixX trafo, RowVectorX shapeParameters, std::vector<aam::RowVector2>& coordinates) 
+    {
+        aam::RowVectorX shape = aam::transformShape(trafo, shapeMean + (shapeParameters * shapeModes).colwise().sum());
+
+        aam::barycentricToCartesian(shape, this->triangleIndices, this->barycentricSamplePositions, coordinates);
     }
 
 }

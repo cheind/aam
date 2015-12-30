@@ -104,6 +104,9 @@ namespace aam {
 
         /** Draw the given model instance (including shape and texture) to an image */
         void renderAppearanceInstanceToImage(cv::Mat& image, MatrixX trafo, RowVectorX shapeParameters, RowVectorX appearanceParameters, bool drawShape = true);
+
+        /** Get the cartesian pixel coordinates from the given shape Parameters */
+        void getCartesianPixelCoordinates(MatrixX trafo, RowVectorX shapeParameters, std::vector<aam::RowVector2>& coordinates);
     };
    
 }

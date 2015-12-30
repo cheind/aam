@@ -78,6 +78,20 @@ namespace aam {
         Eigen::Ref<const MatrixX> barycentricSamplePositions,
         cv::InputArray img,
         cv::InputOutputArray dst);
+
+
+    /** Get cartesian positions for points given as shape with barycentric coordinates.
+
+        \param shape List of points in interleaved format x0, y0, x1, y1, ...
+        \param triangleIds List of triangle vertices in triplets.
+        \param barycentricPoints Nx3 matrix containing points stored as triplets of triangleId, alpha, beta per row.
+        \param output: corresponding points in cartesian coordinates
+    */
+    void barycentricToCartesian(
+        Eigen::Ref<const RowVectorX> shape,
+        Eigen::Ref<const RowVectorXi> triangleIds,
+        Eigen::Ref<const MatrixX> barycentricPoints,
+        std::vector<RowVector2>& cartesianPoints);
     
 }
 

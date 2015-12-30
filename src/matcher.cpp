@@ -21,10 +21,16 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <aam/matcher.h>
 #include <aam/fwd.h>
+#include <aam/transform.h>
 
 #include <imagealign/imagealign.h>
 
+#include <Eigen/LU>
+#include <Eigen/Dense>
+
 #include <opencv2/highgui/highgui.hpp>
+#include <time.h>
+#include <stdlib.h>
 
 namespace ia = imagealign;
 
@@ -53,70 +59,215 @@ namespace aam {
         }
     }
 
-    void calcGradientOfMeanAppearance(const cv::Mat& image, ActiveAppearanceModel& model, cv::Mat& gradX, cv::Mat& gradY) {
+    void calcGradientOfMeanAppearance(const cv::Mat& image, ActiveAppearanceModel& model, std::vector<aam::MatrixX>& grad) {
         
         cv::Mat meanTextureImage = cv::Mat(image.rows, image.cols, CV_8U);
         meanTextureImage = cv::Scalar(0);
         model.renderAppearanceInstanceToImage(meanTextureImage, model.shapeTransformToTrainingData, MatrixX::Zero(1, model.shapeModeWeights.cols()), MatrixX::Zero(1, model.appearanceModeWeights.cols()), false);
+        cv::Mat gradX;
+        cv::Mat gradY;
         cv::Sobel(meanTextureImage, gradX, CV_32F, 1, 0, 3);
         cv::Sobel(meanTextureImage, gradY, CV_32F, 0, 1, 3);
         setInvalidPixelsToZero(gradX, meanTextureImage);
         setInvalidPixelsToZero(gradY, meanTextureImage);
         cv::imshow("gradX", gradX * (1.0/512) + 0.5);
         cv::imshow("gradY", gradY * (1.0/512) + 0.5);
+
+        std::vector<aam::RowVector2> cartesianCoords;
+        model.getCartesianPixelCoordinates(model.shapeTransformToTrainingData, MatrixX::Zero(1, model.shapeModeWeights.cols()), cartesianCoords);
+
+        grad.clear();
+        for (size_t i = 0; i < cartesianCoords.size(); i++) {
+            aam::MatrixX g(1, 2);
+            int x = (int)cartesianCoords[i](0, 0);
+            int y = (int)cartesianCoords[i](0, 1);
+            g(0, 0) = gradX.at<float>(x, y);
+            g(0, 1) = gradY.at<float>(x, y);
+            grad.push_back(g);
+        }
+        
         //cv::waitKey(0);
     }
 
-    //void evaluateJacobian(ActiveAppearanceModel& model, MatrixX jacobian) {  
-    //}
+    void evaluateJacobianPerPixel(ActiveAppearanceModel& model, std::vector<MatrixX>& jacobians) {  
+
+        MatrixX s = model.shapeMean;
+
+        for (int i = 0; i < model.barycentricSamplePositions.rows(); i++) {
+
+            // get triangle, vertices and shape
+            int triangleID = (int)model.barycentricSamplePositions(i, 0);
+            aam::Scalar alpha = model.barycentricSamplePositions(i, 1);
+            aam::Scalar beta = model.barycentricSamplePositions(i, 2);
+            aam::Scalar gamma = 1 - (alpha + beta);
+            int pt1idx = model.triangleIndices(0, triangleID * 3 + 0);
+            int pt2idx = model.triangleIndices(0, triangleID * 3 + 1);
+            int pt3idx = model.triangleIndices(0, triangleID * 3 + 2);
+            
+            // calculate x and y of the current pixel
+            aam::Scalar x = s(0, pt1idx * 2 + 0) * alpha + s(0, pt2idx * 2 + 0) * beta + s(0, pt3idx * 2 + 0) * gamma;
+            aam::Scalar y = s(0, pt1idx * 2 + 1) * alpha + s(0, pt2idx * 2 + 1) * beta + s(0, pt3idx * 2 + 1) * gamma;
+            
+            // calculate the Jacobian matrix
+            AamMatrixTraits<Scalar, 2, 4>::MatrixType jacobian;
+            jacobian(0, 0) = x;
+            jacobian(0, 1) = y;
+            jacobian(0, 2) = 1;
+            jacobian(0, 3) = 0;
+            jacobian(1, 0) = y;
+            jacobian(1, 1) = x;
+            jacobian(1, 2) = 0;
+            jacobian(1, 3) = 1;
+
+            // add the Jacobian for this pixel to the list
+            jacobians.push_back(jacobian);
+        }
+    }
+
+    void elementWiseMult(const std::vector<MatrixX>& a, const std::vector<MatrixX>& b, std::vector<MatrixX>& product) 
+    {
+        // TODO: make sure that a.size() == b.size(), otherwise: exception
+
+        product.resize(a.size());
+        for (size_t i = 0; i < a.size(); i++) {
+            product[i] = a[i] * b[i];
+        }
+    }
+
+    void calcInvHessian(const std::vector<MatrixX>& sd, MatrixX& invHessian) {
+        invHessian.resize(4, 4);
+
+        for (size_t i = 0; i < sd.size(); i++) {
+            invHessian += sd[i].adjoint() * sd[i];
+        }
+
+        invHessian = invHessian.inverse();
+    }
+
+    // convert parameter representation to affine transformation
+    Affine2 paramsToWarp(const Eigen::Ref<MatrixX> params) {
+        Affine2 retVal;
+        // note: b and -b are swapped as we are doing multiplication from left side (i.e. row vectors)
+        retVal(0, 0) = 1 + params(0, 0);   // 1 + a
+        retVal(0, 1) = params(1, 0);       // -b
+        retVal(1, 0) = -params(1, 0);      // b
+        retVal(1, 1) = 1 + params(0, 0);   // 1 + a
+        retVal(2, 0) = params(2, 0);       // t_x
+        retVal(2, 1) = params(3, 0);       // t_y
+        return retVal;
+    }
 
     void Matcher::match(const cv::Mat& image, aam::Affine2& pose, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams) {
 
-        // initialize similarity transform (i.e. pose), shape parameters, and texture parameters
-        pose = model.shapeTransformToTrainingData;
-        aam::Scalar scaleFactor = (aam::Scalar)1.3;  // 1.3
-        pose(0, 0) *= (aam::Scalar)scaleFactor;
-        pose(1, 1) *= (aam::Scalar)scaleFactor;
-        pose(2, 0) += (aam::Scalar)55; // 55
-        pose(2, 1) += (aam::Scalar)-10; // -10
-        shapeParams = MatrixX::Zero(1, model.shapeModeWeights.cols());
-        textureParams = MatrixX::Zero(1, model.appearanceModeWeights.cols());
-
-        // calculate the gradient of the template (i.e. mean appearance)
-        cv::Mat gradX;
-        cv::Mat gradY;
-        calcGradientOfMeanAppearance(image, model, gradX, gradY);
+        // calculate the gradient of the template (i.e. mean appearance image)
+        // gradients are 1x2
+        std::vector<MatrixX> grad;
+        calcGradientOfMeanAppearance(image, model, grad);
 
         // evaluate the Jacobian at (x; 0)
-        //evaluateJacobian(...);
-        // TODO
+        // jacobians are 2x4
+        std::vector<MatrixX> jacobians;
+        evaluateJacobianPerPixel(model, jacobians);
 
         // compute steepest descent images grad(A_0) dW/dp
-        // TODO
+        // steepest descent images are 1x4
+        std::vector<MatrixX> steepestDecentImgs;
+        elementWiseMult(grad, jacobians, steepestDecentImgs);
 
         // compute the Hessian matrix (eq. 23)
-        // TODO
+        // inverse hessian is 4x4
+        MatrixX invHessian;
+        calcInvHessian(steepestDecentImgs, invHessian); 
 
-        // Loop
-        //    warp I with W(x; p) to compute I(W; p)
-        //    Compute the error image I(W(x; p)) - A_0(x)
-        //    ...
+        // calculate cartesian sample positions of mean shape
+        std::vector<RowVector2> coords;
+        model.getCartesianPixelCoordinates(Affine2::Identity(), shapeParams, coords);
 
+        // initialize the warp with the transform to training data
+        Affine2 currentWarp = model.shapeTransformToTrainingData;
+        srand((unsigned int)time(0));
+        currentWarp(2, 0) += 30 + (rand() % 40 - 20);  // for debugging only: shift in x-direction, TODO: remove!
+        currentWarp(2, 1) += 10 + (rand() % 40 - 20);  // for debugging only: shift in y-direction, TODO: remove!
 
+        std::cout << "press key to iterate, Esc to quit" << std::endl;
 
-        for (int i = 0; i < 100; i++) {
+        //TODO: do something like "while(error > epsilon)"
+        int key = 0;
+        while (key != 27) {
 
-            shapeParams(0, shapeParams.cols()-2) += (aam::Scalar)0.3 * model.shapeModeWeights(0, shapeParams.cols()-2);
-
-            // Visualize result...
+            // visualize the current model instance and wait for key press
             cv::Mat imgShowAppearance = image.clone();
-            //model.renderAppearanceInstanceToImage(imgShowAppearance, pose, shapeParams, textureParams);
+            model.renderAppearanceInstanceToImage(imgShowAppearance, currentWarp, shapeParams, textureParams);
             cv::Mat imgShowShape = image.clone();
-            model.renderShapeInstanceToImage(imgShowShape, pose, shapeParams);
+            model.renderShapeInstanceToImage(imgShowShape, currentWarp, shapeParams);
             cv::imshow("Image", image);
-            //cv::imshow("MatchedAppearance", imgShowAppearance);
+            cv::imshow("MatchedAppearance", imgShowAppearance);
             cv::imshow("MatchedShape", imgShowShape);
-            cv::waitKey(0);
+            key = cv::waitKey(0);
+
+            // reset root mean squared error, reset parameter update
+            aam::Scalar rms = 0;
+            MatrixX deltaParam = MatrixX::Zero(4, 1);
+
+            // for each sample position...
+            for (size_t i = 0; i < coords.size(); i++) {
+
+                // get the cartesian coordinates (calculated above)
+                RowVector2 pt = coords[i];
+
+                // get the corresponding warped point
+                RowVector2 warpedPt = transformShape(currentWarp, pt);
+
+                // get gray values from model and image
+                aam::Scalar gModel = model.appearanceMean(i);
+                aam::Scalar gImg = image.at<unsigned char>((int)warpedPt(0, 1), (int)warpedPt(0, 0));
+
+                // calculate difference of model and image
+                aam::Scalar diff = gImg - gModel;
+                rms += diff * diff;
+
+                deltaParam += (grad[i] * jacobians[i]).transpose() * diff;
+            }
+
+            // (step 8 in figure 7, AAMs revisited)
+            // pre-multiply the inverse hessian (see equation 22 in Matthews et. al, "Active Appearance Models Revisited", IJCV, 2004)
+            deltaParam = invHessian * deltaParam * aam::Scalar(0.1);  // update with weight 0.1, TODO: remove this artificial weighting of the update
+            //deltaParam = invHessian * deltaParam;
+
+            // get the current warp as 3x3 matrix
+            MatrixX currentWarp3x3(3, 3);
+            currentWarp3x3.block<3, 2>(0, 0) = currentWarp;
+            currentWarp3x3(0, 2) = 0;
+            currentWarp3x3(1, 2) = 0;
+            currentWarp3x3(2, 2) = 1;
+
+            // get the warp update as 3x3 matrix (derive from deltaParam)
+            MatrixX updateWarp3x3(3, 3);
+            updateWarp3x3.block<3, 2>(0, 0) = paramsToWarp(deltaParam);
+            updateWarp3x3(0, 2) = 0;
+            updateWarp3x3(1, 2) = 0;
+            updateWarp3x3(2, 2) = 1;
+            
+            // use this to exclude rotation and scaling from update
+            //updateWarp3x3(0, 0) = 1;
+            //updateWarp3x3(1, 1) = 1;
+            //updateWarp3x3(0, 1) = 0;
+            //updateWarp3x3(1, 0) = 0;
+
+            // update the current warp (step 9 in figure 7, AAMs revisited)
+            // switch sequence in multiplication of warp matrices compared to AAMs revisited paper
+            // (as we are using row vectors, so vectors would be multiplied from left side)
+            currentWarp = (updateWarp3x3.inverse() * currentWarp3x3).block<3, 2>(0, 0);
+
+            // calculate the root mean squared error (should be minimized by this optimization procedure)
+            rms = sqrt(rms / coords.size());
+            std::cout << "Root Mean Squared Error = " << rms << std::endl;
+
+            std::cout << std::endl << "delta Params 3x3: " << std::endl << updateWarp3x3 << std::endl;
+
+            std::cout << std::endl << "delta Params (4x1): " << std::endl << deltaParam << std::endl;
+
+            std::cout << std::endl << "current warp: " << std::endl << currentWarp << std::endl;
         }
     }
 
