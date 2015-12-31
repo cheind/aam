@@ -68,6 +68,7 @@ namespace aam {
         cv::Mat gradY;
         cv::Sobel(meanTextureImage, gradX, CV_32F, 1, 0, 3);
         cv::Sobel(meanTextureImage, gradY, CV_32F, 0, 1, 3);
+        
         setInvalidPixelsToZero(gradX, meanTextureImage);
         setInvalidPixelsToZero(gradY, meanTextureImage);
         cv::imshow("gradX", gradX * (1.0/512) + 0.5);
@@ -81,8 +82,8 @@ namespace aam {
             aam::MatrixX g(1, 2);
             int x = (int)cartesianCoords[i](0, 0);
             int y = (int)cartesianCoords[i](0, 1);
-            g(0, 0) = gradX.at<float>(x, y);
-            g(0, 1) = gradY.at<float>(x, y);
+            g(0, 0) = gradX.at<float>(y, x);
+            g(0, 1) = gradY.at<float>(y, x);
             grad.push_back(g);
         }
         
@@ -147,6 +148,7 @@ namespace aam {
     // convert parameter representation to affine transformation
     Affine2 paramsToWarp(const Eigen::Ref<MatrixX> params) {
         Affine2 retVal;
+        
         // note: b and -b are swapped as we are doing multiplication from left side (i.e. row vectors)
         retVal(0, 0) = 1 + params(0, 0);   // 1 + a
         retVal(0, 1) = params(1, 0);       // -b
@@ -154,6 +156,7 @@ namespace aam {
         retVal(1, 1) = 1 + params(0, 0);   // 1 + a
         retVal(2, 0) = params(2, 0);       // t_x
         retVal(2, 1) = params(3, 0);       // t_y
+        
         return retVal;
     }
 
