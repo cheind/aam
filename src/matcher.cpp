@@ -151,8 +151,8 @@ namespace aam {
         
         // note: b and -b are swapped as we are doing multiplication from left side (i.e. row vectors)
         retVal(0, 0) = 1 + params(0, 0);   // 1 + a
-        retVal(0, 1) = params(1, 0);       // -b
-        retVal(1, 0) = -params(1, 0);      // b
+        retVal(0, 1) = -params(1, 0);       // -b
+        retVal(1, 0) = params(1, 0);      // b
         retVal(1, 1) = 1 + params(0, 0);   // 1 + a
         retVal(2, 0) = params(2, 0);       // t_x
         retVal(2, 1) = params(3, 0);       // t_y
