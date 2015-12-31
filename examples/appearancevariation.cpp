@@ -26,7 +26,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/rasterization.h>
 #include <aam/map.h>
 
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
 #include <iostream>
 
 

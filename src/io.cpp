@@ -25,7 +25,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <fstream>
-#include <opencv/highgui.h>
+#include <opencv2/opencv.hpp>
 
 bool parseAsfFile(const std::string& fileName, aam::RowVectorX &coords, cv::Mat& contours) {
 

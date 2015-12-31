@@ -21,7 +21,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/aam.h>
 #include <aam/io.h>
 
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
 #include <iostream>
 #include <iomanip>
 #include <math.h>
