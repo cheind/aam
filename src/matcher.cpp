@@ -135,7 +135,7 @@ namespace aam {
     }
 
     void calcInvHessian(const std::vector<MatrixX>& sd, MatrixX& invHessian) {
-        invHessian.resize(4, 4);
+        invHessian = MatrixX::Zero(4, 4);
 
         for (size_t i = 0; i < sd.size(); i++) {
             invHessian += sd[i].adjoint() * sd[i];
