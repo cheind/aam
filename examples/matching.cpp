@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     }
 
     aam::TrainingSet trainingSet;
-    aam::loadAsfTrainingSet(argv[1], trainingSet, 15);
+    aam::loadAsfTrainingSet(argv[1], trainingSet);
     aam::Trainer::createTriangulation(trainingSet);
 
     //aam::showTrainingSet(trainingSet);
@@ -57,9 +57,44 @@ int main(int argc, char **argv)
     aam::Affine2 pose;
     aam::RowVectorX shapeParams = aam::RowVectorX::Zero(1, model.shapeModeWeights.cols());
     aam::RowVectorX appearanceParams = aam::RowVectorX::Zero(1, model.appearanceModeWeights.cols());
-    cv::Mat image = trainingSet.images[10].clone();  // use the 10-th face from the training set
+
+    int nbTrainingExamples = (int)trainingSet.images.size();
+    cv::Mat image = trainingSet.images[6 * 3].clone();  // use the 18-th face from the training set
     //cv::Mat image = cv::imread("c:/data/dev/aam_data/test_001.jpg", 0);
-    matcher.match(image, pose, shapeParams, appearanceParams);
+
+    std::cout << "init matcher..." << std::endl;
+
+    // initialize the AAM matcher
+    matcher.init(image, pose, shapeParams, appearanceParams);
+
+    std::cout << "press 'a' to match without further keypress" << std::endl;
+    std::cout << "press other key to match step by step" << std::endl;
+    std::cout << "press Escape to quit" << std::endl;
+
+    //TODO: do something like "while(error > epsilon)"
+    int key = 0;
+    int delay = 0;
+    while (key != 27) {
+
+        aam::Affine2 currentWarp = matcher.getCurrentGlobalTransform();
+
+        // visualize the current model instance and wait for key press
+        cv::Mat imgShowAppearance = image.clone();
+        model.renderAppearanceInstanceToImage(imgShowAppearance, currentWarp, shapeParams, appearanceParams);
+        cv::Mat imgShowShape = image.clone();
+        model.renderShapeInstanceToImage(imgShowShape, currentWarp, shapeParams);
+
+        cv::imshow("Image", image);
+        cv::imshow("MatchedAppearance", imgShowAppearance);
+        cv::imshow("MatchedShape", imgShowShape);
+        key = cv::waitKey(delay);
+        if (key == 'a') {
+            delay = 20;
+        }
+
+        // make a single matching step
+        matcher.step();
+    }
 
 	return 0;
 }

@@ -40,6 +40,10 @@ namespace aam {
         this->model = model;
     }
 
+    Affine2 Matcher::getCurrentGlobalTransform() {
+        return currentWarp;
+    }
+
     void setInvalidPixelsToZero(cv::Mat& image, const cv::Mat& mask) {
         for (int i = 1; i < image.rows-1; i++) {
             for (int j = 1; j < image.cols-1; j++) {
@@ -91,6 +95,8 @@ namespace aam {
     }
 
     void evaluateJacobianPerPixel(ActiveAppearanceModel& model, std::vector<MatrixX>& jacobians) {  
+
+        jacobians.clear();
 
         MatrixX s = model.shapeMean;
 
@@ -160,118 +166,101 @@ namespace aam {
         return retVal;
     }
 
-    void Matcher::match(const cv::Mat& image, aam::Affine2& pose, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams) {
+    void Matcher::init(const cv::Mat& img, aam::Affine2& pose, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams) {
+
+        image = img.clone();
 
         // calculate the gradient of the template (i.e. mean appearance image)
         // gradients are 1x2
-        std::vector<MatrixX> grad;
         calcGradientOfMeanAppearance(image, model, grad);
 
         // evaluate the Jacobian at (x; 0)
         // jacobians are 2x4
-        std::vector<MatrixX> jacobians;
         evaluateJacobianPerPixel(model, jacobians);
 
         // compute steepest descent images grad(A_0) dW/dp
         // steepest descent images are 1x4
-        std::vector<MatrixX> steepestDecentImgs;
         elementWiseMult(grad, jacobians, steepestDecentImgs);
 
-        // compute the Hessian matrix (eq. 23)
+        // compute the inverse Hessian matrix (eq. 23)
         // inverse hessian is 4x4
-        MatrixX invHessian;
-        calcInvHessian(steepestDecentImgs, invHessian); 
+        calcInvHessian(steepestDecentImgs, invHessian);
 
         // calculate cartesian sample positions of mean shape
-        std::vector<RowVector2> coords;
         model.getCartesianPixelCoordinates(Affine2::Identity(), shapeParams, coords);
 
         // initialize the warp with the transform to training data
-        Affine2 currentWarp = model.shapeTransformToTrainingData;
+        currentWarp = model.shapeTransformToTrainingData;
         srand((unsigned int)time(0));
         currentWarp(2, 0) += 30 + (rand() % 40 - 20);  // for debugging only: shift in x-direction, TODO: remove!
         currentWarp(2, 1) += 10 + (rand() % 40 - 20);  // for debugging only: shift in y-direction, TODO: remove!
+    }
 
-        std::cout << "press key to iterate, Esc to quit" << std::endl;
+    void Matcher::step() {
 
-        //TODO: do something like "while(error > epsilon)"
-        int key = 0;
-        while (key != 27) {
+        // reset root mean squared error, reset parameter update
+        aam::Scalar rms = 0;
+        MatrixX deltaParam = MatrixX::Zero(4, 1);
 
-            // visualize the current model instance and wait for key press
-            cv::Mat imgShowAppearance = image.clone();
-            model.renderAppearanceInstanceToImage(imgShowAppearance, currentWarp, shapeParams, textureParams);
-            cv::Mat imgShowShape = image.clone();
-            model.renderShapeInstanceToImage(imgShowShape, currentWarp, shapeParams);
-            cv::imshow("Image", image);
-            cv::imshow("MatchedAppearance", imgShowAppearance);
-            cv::imshow("MatchedShape", imgShowShape);
-            key = cv::waitKey(0);
+        // for each sample position...
+        for (size_t i = 0; i < coords.size(); i++) {
 
-            // reset root mean squared error, reset parameter update
-            aam::Scalar rms = 0;
-            MatrixX deltaParam = MatrixX::Zero(4, 1);
+            // get the cartesian coordinates (calculated above)
+            RowVector2 pt = coords[i];
 
-            // for each sample position...
-            for (size_t i = 0; i < coords.size(); i++) {
+            // get the corresponding warped point
+            RowVector2 warpedPt = transformShape(currentWarp, pt);
 
-                // get the cartesian coordinates (calculated above)
-                RowVector2 pt = coords[i];
+            // get gray values from model and image
+            aam::Scalar gModel = model.appearanceMean(i);
+            aam::Scalar gImg = image.at<unsigned char>((int)warpedPt(0, 1), (int)warpedPt(0, 0));
 
-                // get the corresponding warped point
-                RowVector2 warpedPt = transformShape(currentWarp, pt);
+            // calculate difference of model and image
+            aam::Scalar diff = gImg - gModel;
+            rms += diff * diff;
 
-                // get gray values from model and image
-                aam::Scalar gModel = model.appearanceMean(i);
-                aam::Scalar gImg = image.at<unsigned char>((int)warpedPt(0, 1), (int)warpedPt(0, 0));
-
-                // calculate difference of model and image
-                aam::Scalar diff = gImg - gModel;
-                rms += diff * diff;
-
-                deltaParam += (grad[i] * jacobians[i]).transpose() * diff;
-            }
-
-            // (step 8 in figure 7, AAMs revisited)
-            // pre-multiply the inverse hessian (see equation 22 in Matthews et. al, "Active Appearance Models Revisited", IJCV, 2004)
-            deltaParam = invHessian * deltaParam * aam::Scalar(0.1);  // update with weight 0.1, TODO: remove this artificial weighting of the update
-            //deltaParam = invHessian * deltaParam;
-
-            // get the current warp as 3x3 matrix
-            MatrixX currentWarp3x3(3, 3);
-            currentWarp3x3.block<3, 2>(0, 0) = currentWarp;
-            currentWarp3x3(0, 2) = 0;
-            currentWarp3x3(1, 2) = 0;
-            currentWarp3x3(2, 2) = 1;
-
-            // get the warp update as 3x3 matrix (derive from deltaParam)
-            MatrixX updateWarp3x3(3, 3);
-            updateWarp3x3.block<3, 2>(0, 0) = paramsToWarp(deltaParam);
-            updateWarp3x3(0, 2) = 0;
-            updateWarp3x3(1, 2) = 0;
-            updateWarp3x3(2, 2) = 1;
-            
-            // use this to exclude rotation and scaling from update
-            //updateWarp3x3(0, 0) = 1;
-            //updateWarp3x3(1, 1) = 1;
-            //updateWarp3x3(0, 1) = 0;
-            //updateWarp3x3(1, 0) = 0;
-
-            // update the current warp (step 9 in figure 7, AAMs revisited)
-            // switch sequence in multiplication of warp matrices compared to AAMs revisited paper
-            // (as we are using row vectors, so vectors would be multiplied from left side)
-            currentWarp = (updateWarp3x3.inverse() * currentWarp3x3).block<3, 2>(0, 0);
-
-            // calculate the root mean squared error (should be minimized by this optimization procedure)
-            rms = sqrt(rms / coords.size());
-            std::cout << "Root Mean Squared Error = " << rms << std::endl;
-
-            std::cout << std::endl << "delta Params 3x3: " << std::endl << updateWarp3x3 << std::endl;
-
-            std::cout << std::endl << "delta Params (4x1): " << std::endl << deltaParam << std::endl;
-
-            std::cout << std::endl << "current warp: " << std::endl << currentWarp << std::endl;
+            deltaParam += (grad[i] * jacobians[i]).transpose() * diff;
         }
+
+        // (step 8 in figure 7, AAMs revisited)
+        // pre-multiply the inverse hessian (see equation 22 in Matthews et. al, "Active Appearance Models Revisited", IJCV, 2004)
+        deltaParam = invHessian * deltaParam * aam::Scalar(0.1);  // update with weight 0.1, TODO: remove this artificial weighting of the update
+        //deltaParam = invHessian * deltaParam;
+
+        // get the current warp as 3x3 matrix
+        MatrixX currentWarp3x3(3, 3);
+        currentWarp3x3.block<3, 2>(0, 0) = currentWarp;
+        currentWarp3x3(0, 2) = 0;
+        currentWarp3x3(1, 2) = 0;
+        currentWarp3x3(2, 2) = 1;
+
+        // get the warp update as 3x3 matrix (derive from deltaParam)
+        MatrixX updateWarp3x3(3, 3);
+        updateWarp3x3.block<3, 2>(0, 0) = paramsToWarp(deltaParam);
+        updateWarp3x3(0, 2) = 0;
+        updateWarp3x3(1, 2) = 0;
+        updateWarp3x3(2, 2) = 1;
+
+        // use this to exclude rotation and scaling from update
+        //updateWarp3x3(0, 0) = 1;
+        //updateWarp3x3(1, 1) = 1;
+        //updateWarp3x3(0, 1) = 0;
+        //updateWarp3x3(1, 0) = 0;
+
+        // update the current warp (step 9 in figure 7, AAMs revisited)
+        // switch sequence in multiplication of warp matrices compared to AAMs revisited paper
+        // (as we are using row vectors, so vectors would be multiplied from left side)
+        currentWarp = (updateWarp3x3.inverse() * currentWarp3x3).block<3, 2>(0, 0);
+
+        // calculate the root mean squared error (should be minimized by this optimization procedure)
+        rms = sqrt(rms / coords.size());
+        std::cout << "Root Mean Squared Error = " << rms << std::endl;
+
+        std::cout << std::endl << "delta Params 3x3: " << std::endl << updateWarp3x3 << std::endl;
+
+        std::cout << std::endl << "delta Params (4x1): " << std::endl << deltaParam << std::endl;
+
+        std::cout << std::endl << "current warp: " << std::endl << currentWarp << std::endl;
     }
 
 }
