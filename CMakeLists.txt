@@ -36,6 +36,7 @@ add_library(aam
 	inc/aam/bilinear.h
 	inc/aam/model.h
 	inc/aam/matcher.h
+	inc/aam/matcher2.h
     inc/aam/trainingset.h
 	inc/aam/trainer.h
     inc/aam/transform.h
@@ -50,6 +51,7 @@ add_library(aam
 	src/rasterization.cpp
 	src/model.cpp
 	src/matcher.cpp
+	src/matcher2.cpp
 	src/trainer.cpp
     src/transform.cpp
 	src/io/serialization.cpp
