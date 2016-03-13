@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     model.load("model.data");
 #endif
 
-    aam::Matcher matcher(model);
+    aam::Matcher2 matcher(model);
     aam::Affine2 pose;
     aam::RowVectorX shapeParams = aam::RowVectorX::Zero(1, model.shapeModeWeights.cols());
     aam::RowVectorX appearanceParams = aam::RowVectorX::Zero(1, model.appearanceModeWeights.cols());
