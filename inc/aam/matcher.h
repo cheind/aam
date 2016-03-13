@@ -71,6 +71,58 @@ namespace aam {
         Affine2 getCurrentGlobalTransform();
     };
 
+
+
+	/** class for matching an AAM using the inverse compositional approach */
+    class Matcher2 {
+
+    private:
+
+        /** The model that is matched to images */
+        ActiveAppearanceModel model;
+
+        /** the input image to which the model is matched */
+        cv::Mat image;
+
+        /** pre-computed gradient images, matrices are 1x2 */
+        std::vector<MatrixX> grad;
+
+        /** pre-computed jacobians of global shape transform, matrices are 2x4 */
+        std::vector<MatrixX> globalTrafoJacobians;
+
+        /** pre-computed jacobians warp, matrices are nbPixels x nbShapeParameters */
+        std::vector<MatrixX> warpJacobians;
+
+        /** pre-computed steepest descent images, matrices are 1x4 */
+        std::vector<MatrixX> steepestDescentImgs;
+
+        /** pre-computed inverse hessian, matrix is 4x4 */
+        MatrixX invHessian;
+
+        /** pre-computed cartesian coordinates of sample positions (relative to mean shape) */
+        std::vector<RowVector2> coords;
+
+        /** current warp */
+        Affine2 currentWarp;
+
+		/** current shape params */
+		MatrixX currentShapeParams;
+
+    public:
+
+        /** Constructor */
+        Matcher2(const aam::ActiveAppearanceModel& model);
+
+        /** Initialize the matching (i.e. pre-compute various entities) */
+        void init(const cv::Mat& img, aam::Affine2& pose, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams);
+
+        /** match the active appearance model to the given image */
+        void step();
+
+        /** returns the current warp */
+        Affine2 getCurrentGlobalTransform();
+    };
+
 }
 
 #endif
