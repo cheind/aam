@@ -26,6 +26,7 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 #include <aam/rasterization.h>
 #include <aam/map.h>
 #include <fstream>
+#include <iostream>
 
 namespace aam {
 
@@ -121,6 +122,26 @@ namespace aam {
         aam::RowVectorX shape = aam::transformShape(trafo, shapeMean + (shapeParameters * shapeModes).colwise().sum());
 
         aam::barycentricToCartesian(shape, this->triangleIndices, this->barycentricSamplePositions, coordinates);
+    }
+
+    void ActiveAppearanceModel::setNumShapeModes(int numModes) {
+        std::cout << "shapeModes: " << shapeModes.rows() << "x" << shapeModes.cols() << std::endl;
+        std::cout << "shapeModeWeights: " << shapeModeWeights.rows() << "x" << shapeModeWeights.cols() << std::endl;
+        int currNumModes = shapeModes.rows();
+        shapeModes = MatrixX(shapeModes.block(currNumModes - numModes, 0, numModes, shapeModes.cols()));
+        shapeModeWeights = MatrixX(shapeModeWeights.block(0, currNumModes - numModes, 1, numModes));
+        std::cout << "shapeModes: " << shapeModes.rows() << "x" << shapeModes.cols() << std::endl;
+        std::cout << "shapeModeWeights: " << shapeModeWeights.rows() << "x" << shapeModeWeights.cols() << std::endl;
+    }
+
+    void ActiveAppearanceModel::setNumAppearanceModes(int numModes) {
+        std::cout << "appearanceModes: " << appearanceModes.rows() << "x" << appearanceModes.cols() << std::endl;
+        std::cout << "appearanceModeWeights: " << appearanceModeWeights.rows() << "x" << appearanceModeWeights.cols() << std::endl;
+        int currNumModes = appearanceModes.rows();
+        appearanceModes = MatrixX(appearanceModes.block(currNumModes - numModes, 0, numModes, appearanceModes.cols()));
+        appearanceModeWeights = MatrixX(appearanceModeWeights.block(0, currNumModes - numModes, 1, numModes));
+        std::cout << "appearanceModes: " << appearanceModes.rows() << "x" << appearanceModes.cols() << std::endl;
+        std::cout << "appearanceModeWeights: " << appearanceModeWeights.rows() << "x" << appearanceModeWeights.cols() << std::endl;
     }
 
 }

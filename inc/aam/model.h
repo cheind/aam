@@ -107,6 +107,12 @@ namespace aam {
 
         /** Get the cartesian pixel coordinates from the given shape Parameters */
         void getCartesianPixelCoordinates(MatrixX trafo, RowVectorX shapeParameters, std::vector<aam::RowVector2>& coordinates);
+
+        /** Keep only the numModes most relevant modes of shape variation */
+        void setNumShapeModes(int numModes);
+
+        /** Keep only the numModes most relevant modes of appearance variation */
+        void setNumAppearanceModes(int numModes);
     };
    
 }

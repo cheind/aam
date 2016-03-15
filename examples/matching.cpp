@@ -18,11 +18,19 @@ You should have received a copy of the GNU General Public License
 along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <time.h>
+
 #include <aam/aam.h>
 #include <aam/matcher.h>
 
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
+
+void printModelInfo(const aam::ActiveAppearanceModel& model) {
+    std::cout << "Active Appearance Model:" << std::endl;
+    std::cout << "  number of shape modes: " << model.shapeModes.rows() << std::endl;
+    std::cout << "  number of appearance modes: " << model.appearanceModes.rows() << std::endl;
+}
 
 /**
  
@@ -49,6 +57,12 @@ int main(int argc, char **argv)
     aam::Trainer trainer(trainingSet);
     trainer.train(model);
     model.save("model.data");
+
+    printModelInfo(model);
+    model.setNumShapeModes(3);
+    model.setNumAppearanceModes(15);
+    printModelInfo(model);
+
 #else  // load saved model
     model.load("model.data");
 #endif
@@ -59,13 +73,19 @@ int main(int argc, char **argv)
     aam::RowVectorX appearanceParams = aam::RowVectorX::Zero(1, model.appearanceModeWeights.cols());
 
     int nbTrainingExamples = (int)trainingSet.images.size();
-    cv::Mat image = trainingSet.images[6 * 3].clone();  // use the 18-th face from the training set
+    cv::Mat image = trainingSet.images[6 * 5].clone();  // use the 18-th face from the training set
+    //cv::Mat image = cv::imread("c:/GIT/AAM_data/szamba.png", 0);
+    //cv::Mat image = cv::imread("c:/GIT/AAM_data/cheind.png", 0);
     //cv::Mat image = cv::imread("c:/data/dev/aam_data/test_001.jpg", 0);
 
     std::cout << "init matcher..." << std::endl;
 
     // initialize the AAM matcher
-    matcher.init(image, pose, shapeParams, appearanceParams);
+    srand((unsigned int)time(0));
+    aam::Scalar x = 320;
+    aam::Scalar y = 240;
+    aam::Scalar scaling = 1.0;
+    matcher.init(image, x, y, scaling, shapeParams, appearanceParams);
 
     std::cout << "press 'a' to match without further keypress" << std::endl;
     std::cout << "press other key to match step by step" << std::endl;
@@ -80,9 +100,9 @@ int main(int argc, char **argv)
 
         // visualize the current model instance and wait for key press
         cv::Mat imgShowAppearance = image.clone();
-        model.renderAppearanceInstanceToImage(imgShowAppearance, currentWarp, shapeParams, appearanceParams);
+        model.renderAppearanceInstanceToImage(imgShowAppearance, currentWarp, matcher.getCurrentShapeParams(), matcher.getCurrentAppearanceParams());
         cv::Mat imgShowShape = image.clone();
-        model.renderShapeInstanceToImage(imgShowShape, currentWarp, shapeParams);
+        model.renderShapeInstanceToImage(imgShowShape, currentWarp, matcher.getCurrentShapeParams());
 
         cv::imshow("Image", image);
         cv::imshow("MatchedAppearance", imgShowAppearance);

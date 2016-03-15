@@ -33,7 +33,6 @@ along with AAM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <time.h>
 #include <stdlib.h>
 
 namespace ia = imagealign;
@@ -173,7 +172,7 @@ namespace aam {
         return retVal;
     }
 
-    void Matcher::init(const cv::Mat& img, aam::Affine2& pose, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams) {
+    void Matcher::init(const cv::Mat& img, Scalar x, Scalar y, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams) {
 
         image = img.clone();
 
@@ -198,9 +197,8 @@ namespace aam {
 
         // initialize the warp with the transform to training data
         currentWarp = model.shapeTransformToTrainingData;
-        srand((unsigned int)time(0));
-        currentWarp(2, 0) += 30 + (rand() % 40 - 20);  // for debugging only: shift in x-direction, TODO: remove!
-        currentWarp(2, 1) += 10 + (rand() % 40 - 20);  // for debugging only: shift in y-direction, TODO: remove!
+        currentWarp(2, 0) = x;
+        currentWarp(2, 1) = y;
     }
 
     void Matcher::step() {
@@ -278,6 +276,14 @@ namespace aam {
 
     Affine2 Matcher2::getCurrentGlobalTransform() {
         return currentWarp;
+    }
+
+    MatrixX Matcher2::getCurrentShapeParams() {
+        return currentShapeParams;
+    }
+
+    MatrixX Matcher2::getCurrentAppearanceParams() {
+        return currentAppearanceParams;
     }
 
     void evaluateJacobiansGlobalTransform(ActiveAppearanceModel& model, std::vector<MatrixX>& jacobians) {  
@@ -378,14 +384,17 @@ namespace aam {
 			MatrixX gradA0dNdj(model.barycentricSamplePositions.rows(), 1);
 
 			std::vector<MatrixX> jacobians; 
+            int paramIdx;
 			if (j < 4) {
 				jacobians = trafoJacobians;
+                paramIdx = j;
 			} else {
 				jacobians = warpJacobians;
+                paramIdx = j - 4;
 			}
 
 			for (int i = 0; i < model.barycentricSamplePositions.rows(); i++) {
-				gradA0dNdj(i, 0) = grad[i](0, 0) * jacobians[i](0, j) + grad[i](0, 1) * jacobians[i](1, j);
+				gradA0dNdj(i, 0) = grad[i](0, 0) * jacobians[i](0, paramIdx) + grad[i](0, 1) * jacobians[i](1, paramIdx);
 			}
 
 			// inner sum of equations 63 and 64 (sum over all x of Ai(x) * grad A0 dN/dqj)
@@ -403,16 +412,9 @@ namespace aam {
 			}
 			steepestDescentImg = gradA0dNdj - subtractedPart;
 
-			// TODO: remove elimination of NaNs (?)
-			for (int i = 0; i < steepestDescentImg.rows(); i++) {
-				if ((!(steepestDescentImg(i, 0) < 10000)) && (!(steepestDescentImg(i, 0) > -10000))) {
-					steepestDescentImg(i, 0) = 0;
-				}
-			}
-
 			steepestDescentImgs.push_back(steepestDescentImg);
 
-			std::cout << "calculated steepest descent image #" << j << std::endl;
+			std::cout << "calculated steepest descent image #" << j << " (" << paramIdx << ")" << std::endl;
 
 			////////////////////////
 			// DEBUG
@@ -461,7 +463,7 @@ namespace aam {
 		//std::cout << "invHessian: " << std::endl << invHessian;
     }
 
-    void Matcher2::init(const cv::Mat& img, aam::Affine2& pose, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams) {
+    void Matcher2::init(const cv::Mat& img, Scalar x, Scalar y, Scalar scaling, aam::RowVectorX& shapeParams, aam::RowVectorX& appearanceParams) {
 
         image = img.clone();
 
@@ -484,12 +486,14 @@ namespace aam {
         calcInvHessianWarpAndTrafo(steepestDescentImgs, invHessian);
 
 		currentShapeParams = shapeParams;
+        currentAppearanceParams = appearanceParams;
 
         // initialize the warp with the transform to training data
         currentWarp = model.shapeTransformToTrainingData;
-        srand((unsigned int)time(0));
-        currentWarp(2, 0) += 30 + (rand() % 40 - 20);  // for debugging only: shift in x-direction, TODO: remove!
-        currentWarp(2, 1) += 10 + (rand() % 40 - 20);  // for debugging only: shift in y-direction, TODO: remove!
+        currentWarp(2, 0) = x;
+        currentWarp(2, 1) = y;
+        currentWarp(0, 0) *= scaling;
+        currentWarp(1, 1) *= scaling;
     }
 
     void Matcher2::step() {
@@ -541,7 +545,7 @@ namespace aam {
 		image = cv::Scalar(0);
 		aam::writeShapeImage(s0, model.triangleIndices, model.barycentricSamplePositions, colors, image);
 		cv::imshow("diffImage", image);
-		cv::waitKey(0);
+		cv::waitKey(10);
 
 		///////////////////////
 
@@ -561,6 +565,8 @@ namespace aam {
 
 		MatrixX deltaParamTrafo = deltaParam.block(0, 0, 4, 1);
 		MatrixX deltaParamShape = deltaParam.block(4, 0, model.shapeModeWeights.cols(), 1);
+
+        currentShapeParams += deltaParamShape * aam::Scalar(0.1);
 
         // get the current warp as 3x3 matrix
         MatrixX currentWarp3x3(3, 3);
@@ -586,6 +592,12 @@ namespace aam {
         // switch sequence in multiplication of warp matrices compared to AAMs revisited paper
         // (as we are using row vectors, so vectors would be multiplied from left side)
         currentWarp = (updateWarp3x3.inverse() * currentWarp3x3).block<3, 2>(0, 0);
+
+        // Step 10, Figure 13 (AAMs revisited)
+        currentAppearanceParams = RowVectorX::Zero(model.appearanceModes.rows());
+        for (int i = 0; i < model.appearanceModes.rows(); i++) {
+            currentAppearanceParams(i) = model.appearanceModes.row(i) * diffImage.col(0);
+        }
 
         // calculate the root mean squared error (should be minimized by this optimization procedure)
         rms = sqrt(rms / coords.size());

@@ -62,7 +62,7 @@ namespace aam {
         Matcher(const aam::ActiveAppearanceModel& model);
 
         /** Initialize the matching (i.e. pre-compute various entities) */
-        void init(const cv::Mat& img, aam::Affine2& pose, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams);
+        void init(const cv::Mat& img, aam::Scalar x, aam::Scalar y, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams);
 
         /** match the active appearance model to the given image */
         void step();
@@ -106,7 +106,10 @@ namespace aam {
         Affine2 currentWarp;
 
 		/** current shape params */
-		MatrixX currentShapeParams;
+        RowVectorX currentShapeParams;
+
+        /** current appearance params */
+        RowVectorX currentAppearanceParams;
 
     public:
 
@@ -114,13 +117,19 @@ namespace aam {
         Matcher2(const aam::ActiveAppearanceModel& model);
 
         /** Initialize the matching (i.e. pre-compute various entities) */
-        void init(const cv::Mat& img, aam::Affine2& pose, aam::RowVectorX& shapeParams, aam::RowVectorX& textureParams);
+        void init(const cv::Mat& img, Scalar x, Scalar y, Scalar scaling, aam::RowVectorX& shapeParams, aam::RowVectorX& appearanceParams);
 
         /** match the active appearance model to the given image */
         void step();
 
         /** returns the current warp */
         Affine2 getCurrentGlobalTransform();
+
+        /** returns the current shape params */
+        MatrixX getCurrentShapeParams();
+
+        /** returns the current appearance params */
+        MatrixX getCurrentAppearanceParams();
     };
 
 }
